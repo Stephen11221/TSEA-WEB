@@ -1,13 +1,14 @@
 @php
     $navItems = [
         ['label' => 'Home', 'route' => 'home'],
+        ['label' => 'About', 'route' => 'about'],
+                    
         ['label' => 'Workforce Passport™', 'route' => 'passport'],
         ['label' => 'ERI™', 'route' => 'eri'],
         ['label' => 'Programs', 'route' => 'programs'],
         ['label' => 'Employers', 'route' => 'employers'],
         ['label' => 'Institutions', 'route' => 'institutions'],
         ['label' => 'Workforce Intelligence™', 'route' => 'intelligence'],
-        ['label' => 'About', 'route' => 'about'],
         ['label' => 'Contact', 'route' => 'contact'],
     ];
 @endphp
@@ -29,10 +30,23 @@
                 @endforeach
             </ul>
             <div class="nav-actions">
-                <a class="btn btn-primary btn-sm" href="{{ route('passport.create') }}">Create Passport</a>
-                <a class="profile-button" href="{{ route('passport') }}" aria-label="View profile">
-                    <i class="fas fa-user" aria-hidden="true"></i>
-                </a>
+                @auth
+                    <div class="user-menu">
+                        <span class="user-name">{{ auth()->user()->name }}</span>
+                        @if (auth()->user()->isAdmin())
+                            <a class="btn btn-primary btn-sm" href="{{ route('admin.dashboard') }}">Admin Panel</a>
+                        @else
+                            <a class="btn btn-primary btn-sm" href="{{ route('user.dashboard') }}">Dashboard</a>
+                        @endif
+                        <form action="{{ route('logout') }}" method="POST" style="display: inline;">
+                            @csrf
+                            <button type="submit" class="btn btn-secondary btn-sm">Logout</button>
+                        </form>
+                    </div>
+                @else
+                    <a class="btn btn-secondary btn-sm" href="{{ route('login') }}">Login</a>
+                    <a class="btn btn-primary btn-sm" href="{{ route('register') }}">Register</a>
+                @endauth
             </div>
         </div>
     </nav>
