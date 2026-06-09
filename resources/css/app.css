@@ -195,6 +195,25 @@ button, input, select, textarea { font: inherit; }
 .compact-card strong { color: var(--blue); margin-bottom: .35rem; }
 .compact-card span { color: var(--muted); font-size: .88rem; line-height: 1.5; }
 .problem-card, .solution-card { min-height: 160px; }
+.document-card {
+    display: grid;
+    gap: .6rem;
+    align-content: start;
+    min-height: 180px;
+}
+.document-card i {
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    border-radius: 6px;
+    color: var(--blue);
+    background: rgba(0, 31, 143, .1);
+    border: 1px solid rgba(0, 31, 143, .2);
+}
+.document-card .text-link {
+    margin-top: auto;
+}
 .icon-dot, .solution-icon { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 6px; margin-bottom: .8rem; }
 .icon-dot { color: var(--blue); background: rgba(0, 31, 143, .1); border: 1px solid rgba(0, 31, 143, .2); }
 .solution-icon { color: var(--white); background: linear-gradient(135deg, var(--blue), var(--green)); }
@@ -204,7 +223,7 @@ button, input, select, textarea { font: inherit; }
 .metrics-row { grid-template-columns: repeat(5, minmax(0, 1fr)); margin: 0; }
 .metrics-row.compact { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .partner-strip { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 1rem; margin-top: 1.3rem; }
-.partner-strip span, .program-image {
+.partner-logo-card, .program-image {
     display: grid;
     place-items: center;
     min-height: 58px;
@@ -213,6 +232,27 @@ button, input, select, textarea { font: inherit; }
     background: #fff;
     color: #94A3B8;
     font-weight: 900;
+}
+.partner-logo-card {
+    gap: .45rem;
+    padding: .8rem;
+    text-align: center;
+}
+.partner-logo-card img {
+    display: block;
+    width: min(100%, 120px);
+    max-height: 44px;
+    object-fit: contain;
+}
+.partner-logo-card span {
+    display: grid;
+    place-items: center;
+    min-height: 44px;
+}
+.partner-logo-card strong {
+    color: #334155;
+    font-size: .75rem;
+    line-height: 1.25;
 }
 
 .page-hero { padding: clamp(3rem, 7vw, 5.5rem) 0; }

@@ -1,5 +1,5 @@
 <?php
-
+use App\Http\Controllers\Admin\AboutController;
 use App\Http\Controllers\Admin\HomePageController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
@@ -7,14 +7,15 @@ use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 
-Route::view('/', 'welcome')->name('home');
+Route::get('/', [HomePageController::class, 'showHomepage'])->name('home');
+Route::get('/about', [AboutController::class, 'index'])->name('about');
+
 Route::view('/workforce-passport', 'pages.workforce-passport')->name('passport');
 Route::view('/eri', 'pages.eri')->name('eri');
 Route::view('/programs', 'pages.programs')->name('programs');
 Route::view('/employers', 'pages.employers')->name('employers');
 Route::view('/institutions', 'pages.institutions')->name('institutions');
 Route::view('/workforce-intelligence', 'pages.workforce-intelligence')->name('intelligence');
-Route::view('/about', 'pages.about')->name('about');
 Route::view('/contact', 'pages.contact')->name('contact');
 Route::view('/create-passport', 'pages.workforce-passport')->name('passport.create');
 
@@ -58,12 +59,21 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->cont
     Route::put('/pages/{page}', 'updatePage')->name('pages.update');
     Route::get('/change-password', 'changePassword')->name('change-password');
     Route::put('/change-password', 'updatePassword')->name('change-password.update');
-    //Homepage Settings
-            Route::get('/content/homepage', [HomePageController::class, 'editHomepage'])
-            ->name('content.homepage');
+    Route::get('/content/homepage', [HomePageController::class, 'editHomepage'])->name('content.homepage');
+    Route::post('/content/homepage', [HomePageController::class, 'updateHomepage'])->name('content.homepage.update');
+    Route::post('/content/homepage/restore', [HomePageController::class, 'restoreHomepage'])->name('content.homepage.restore');
 
-        Route::post('/content/homepage', [HomePageController::class, 'updateHomepage'])
-            ->name('content.homepage.update');
+   
+    // Show About Page form (OPEN PAGE)
+    Route::get('content/about', [AboutController::class, 'edit'])
+        ->name('content.about');
 
+    // Update About Page (SAVE FORM)
+    Route::post('content/about/update', [AboutController::class, 'update'])
+        ->name('content.about.update');
 
-    });
+    // Optional: Restore defaults
+    Route::post('content/about/restore', [AboutController::class, 'restore'])
+        ->name('content.about.restore');
+
+        });

@@ -467,7 +467,10 @@
                         </a>
                     </div>
                 </div>
-                
+                <div class="nav-section">
+                    <div class="nav-section-title">Web-page view</div>
+                    <a href="{{ route('home') }}" class="nav-link">View update</a>
+                </div>
                 <div class="nav-section">
                     <div class="nav-section-title">Management</div>
                     <div class="nav-item">
@@ -517,6 +520,13 @@
                             <span>Homepage Content</span>
                         </a>
 
+                    </div>
+                    <div class="nav-item">
+                        <a href="{{ route('admin.content.about') }}"
+                            class="nav-link {{ request()->routeIs('admin.content.about') ? 'active' : '' }}">
+                            <i class="fas fa-info-circle me-2"></i>
+                            About Page
+                        </a>
                     </div>
                 </div>
                 
