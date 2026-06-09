@@ -1,4 +1,5 @@
 @extends('layouts.app')
+
 @section('title', 'About TSEA - Africa’s Workforce Passport')
 
 @section('content')
@@ -27,23 +28,44 @@
     </div>
 </section>
 
+{{-- Mission Section --}}
+<section class="section">
+    <div class="container grid one">
+
+        @foreach($missionCards as $card)
+            <article class="card">
+                <h2>{{ $card['title'] }}</h2>
+                <p>{{ $card['text'] }}</p>
+            </article>
+        @endforeach
+
+    </div>
+</section>
+
+{{-- Infrastructure Section --}}
 <section class="section">
     <div class="container grid three">
 
-        <article class="card">
-            <h2>{{ $about->mission_title }}</h2>
-            <p>{{ $about->mission_description }}</p>
-        </article>
+        @foreach($infraCards as $card)
+            <article class="card">
+                <h2>{{ $card['title'] }}</h2>
+                <p>{{ $card['text'] }}</p>
+            </article>
+        @endforeach
 
-        <article class="card">
-            <h2>{{ $about->infrastructure_title }}</h2>
-            <p>{{ $about->infrastructure_description }}</p>
-        </article>
+    </div>
+</section>
 
-        <article class="card">
-            <h2>{{ $about->impact_title }}</h2>
-            <p>{{ $about->impact_description }}</p>
-        </article>
+{{-- Impact Section --}}
+<section class="section">
+    <div class="container grid three">
+
+        @foreach($impactCards as $card)
+            <article class="card">
+                <h2>{{ $card['title'] }}</h2>
+                <p>{{ $card['text'] }}</p>
+            </article>
+        @endforeach
 
     </div>
 </section>
