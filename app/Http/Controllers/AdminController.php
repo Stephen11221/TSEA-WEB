@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Program;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller
 {
@@ -15,7 +17,9 @@ class AdminController extends Controller
         $totalUsers = User::count();
         $activeUsers = User::where('status', 'active')->count();
         $totalAdmins = User::where('role', 'admin')->count();
-        $newUsersThisMonth = User::whereMonth('created_at', now()->month)->count();
+        $newUsersThisMonth = User::whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
+            ->count();
         
         // Mock data for jobs and courses (will be real once those models are populated)
         $totalJobs = 0;
@@ -90,7 +94,7 @@ class AdminController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
-            'role' => 'required|in:admin,user',
+            'role' => 'required|in:admin,user,employer,instructor',
         ]);
 
         $user->update($validated);
@@ -118,6 +122,37 @@ class AdminController extends Controller
     {
         // TODO: Implement when Passport model is created
         return view('admin.passports.index');
+    }
+
+    /**
+     * List all programs
+     */
+    public function programs()
+    {
+        $programs = Program::paginate(15);
+        return view('admin.programs.index', ['programs' => $programs]);
+    }
+
+    /**
+     * Manage ERI content
+     */
+    public function eriContent()
+    {
+        // The 'admin.content.eri' view likely expects an $eri variable.
+        $eri = null; // TODO: Fetch actual ERI content from the database
+
+        return view('admin.content.eri', ['eri' => $eri]);
+    }
+
+    /**
+     * Manage Workforce Passport content
+     */
+    public function passportContent()
+    {
+        // Just like eriContent, this view likely expects a variable to be defined.
+        $passportContent = null; // TODO: Fetch actual content from database
+
+        return view('admin.content.workforce-passport', ['content' => $passportContent]);
     }
 
     /**
@@ -161,7 +196,7 @@ class AdminController extends Controller
         ]);
 
         auth()->user()->update([
-            'password' => bcrypt($validated['password']),
+            'password' => Hash::make($validated['password']),
         ]);
 
         return back()->with('success', 'Password changed successfully');

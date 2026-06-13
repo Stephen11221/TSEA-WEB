@@ -1,0 +1,168 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\Program;
+use App\Models\ProgramPage;
+use Illuminate\Http\Request;
+
+class ProgramController extends Controller
+{
+    /**
+     * Show Programs Dashboard
+
+    */
+    public function index()
+    {
+        $page = ProgramPage::firstOrCreate(
+            ['id' => 1],
+            [
+                'hero_label' => 'Programs',
+                'hero_title' => 'Workforce Programs',
+                'hero_description' => 'Discover readiness, digital skills, leadership and entrepreneurship programs aligned to market demand.',
+            ]
+        );
+        $programs = Program::latest()->get();
+
+        if ($programs->isEmpty()) {
+            $programs = collect([
+                ['title' => 'Career Readiness', 'description' => 'Build interview confidence, CV quality and workplace behaviours.', 'icon' => 'fa-user-tie'],
+                ['title' => 'Digital Skills', 'description' => 'Gain practical tools for modern work and AI-enabled productivity.', 'icon' => 'fa-laptop-code'],
+                ['title' => 'Future Skills', 'description' => 'Develop problem solving, adaptability and communication.', 'icon' => 'fa-lightbulb'],
+                ['title' => 'Leadership', 'description' => 'Prepare for team contribution and professional growth.', 'icon' => 'fa-chess-king'],
+                ['title' => 'Entrepreneurship', 'description' => 'Validate ideas, business models and market pathways.', 'icon' => 'fa-rocket'],
+                ['title' => 'Executive Programs', 'description' => 'Institution and employer workforce transformation tracks.', 'icon' => 'fa-chart-pie'],
+            ])->map(fn ($program) => (object) $program);
+        }
+
+        return view('pages.programs', compact('page', 'programs'));
+    }
+
+    /**
+ * Store new Program
+ */
+public function store(Request $request)
+{
+    $request->validate([
+        'title' => 'required|string|max:255',
+        'description' => 'required|string',
+        'icon' => 'nullable|string|max:255',
+        'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+    ]);
+
+    $imagePath = null;
+
+    if ($request->hasFile('image')) {
+        $imagePath = $request->file('image')->store('programs', 'public');
+    }
+
+    Program::create([
+        'title' => $request->title,
+        'description' => $request->description,
+        'icon' => $request->icon,
+        'image' => $imagePath,
+    ]);
+
+    return redirect()
+        ->back()
+        ->with('success', 'Program created successfully.');
+}
+
+    public function edit()
+    {
+        $page = ProgramPage::firstOrCreate(
+            ['id' => 1],
+            [
+                'hero_label' => 'Programs',
+                'hero_title' => 'Workforce Programs',
+                'hero_description' => 'Discover readiness, digital skills, leadership and entrepreneurship programs aligned to market demand.',
+            ]
+        );
+        $programs = Program::latest()->get();
+
+        return view('admin.content.program', compact('page', 'programs'));
+    }
+
+
+    /**
+     * Update Hero Section
+     */
+    public function update(Request $request)
+    {
+        $request->validate([
+            'hero_label' => 'nullable|string|max:255',
+            'hero_title' => 'required|string|max:255',
+            'hero_description' => 'nullable|string',
+        ]);
+
+        $page = ProgramPage::firstOrCreate(['id' => 1]);
+
+        $page->update([
+            'hero_label' => $request->hero_label,
+            'hero_title' => $request->hero_title,
+            'hero_description' => $request->hero_description,
+        ]);
+
+        return redirect()
+            ->back()
+            ->with('success', 'Programs page updated successfully.');
+    }
+
+    /**
+     * Restore Default Programs
+     */
+    public function restoreDefaults()
+    {
+        Program::truncate();
+
+        Program::insert([
+            [
+                'title' => 'Career Readiness',
+                'description' => 'Build interview confidence, CV quality and workplace behaviours.',
+                'icon' => 'fa-user-tie',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'title' => 'Digital Skills',
+                'description' => 'Gain practical tools for modern work and AI-enabled productivity.',
+                'icon' => 'fa-laptop-code',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'title' => 'Future Skills',
+                'description' => 'Develop problem solving, adaptability and communication.',
+                'icon' => 'fa-lightbulb',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'title' => 'Leadership',
+                'description' => 'Prepare for team contribution and professional growth.',
+                'icon' => 'fa-chess-king',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'title' => 'Entrepreneurship',
+                'description' => 'Validate ideas, business models and market pathways.',
+                'icon' => 'fa-rocket',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'title' => 'Executive Programs',
+                'description' => 'Institution and employer workforce transformation tracks.',
+                'icon' => 'fa-chart-pie',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
+
+        return redirect()
+            ->back()
+            ->with('success', 'Default programs restored successfully.');
+    }
+}

@@ -203,7 +203,7 @@
             right: -5px;
             width: 18px;
             height: 18px;
-            background-color: #FF3333;
+            background-color: var(--color-accent);
             color: white;
             border-radius: 50%;
             display: flex;
@@ -350,8 +350,8 @@
             border-top: 1px solid var(--color-border);
         }
         
-        .change-positive { color: var(--color-secondary); }
-        .change-negative { color: #FF3333; }
+.change-positive { color: var(--color-secondary); }
+.change-negative { color: var(--color-text-muted); }
         
         /* Data Table */
         .data-table {
@@ -412,7 +412,7 @@
         
         .badge-success { background-color: rgba(0,179,89,0.2); color: var(--color-secondary); }
         .badge-warning { background-color: rgba(255,107,53,0.2); color: var(--color-accent); }
-        .badge-danger { background-color: rgba(255,51,51,0.2); color: #FF3333; }
+        .badge-danger { background-color: rgba(102,102,102,0.2); color: var(--color-text-muted); }
         .badge-info { background-color: rgba(0,102,204,0.2); color: var(--color-primary); }
         
         /* Responsive */
@@ -501,16 +501,27 @@
                 
                 <div class="nav-section">
                     <div class="nav-section-title">Operations</div>
+
+                    <div  class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('admin.content.program*') ? 'active' : '' }}" 
+                        href="{{ route('admin.content.program') }}">
+                            <i class="fas fa-graduation-cap"></i>
+                            <span>Programs</span>
+                        </a>
+                    </div>  
                     <div class="nav-item">
-                        <a href="#" class="nav-link">
-                            <i class="fas fa-dollar-sign"></i>
-                            <span>Payments</span>
+                        <a class="nav-link {{ request()->routeIs('admin.content.eri*') ? 'active' : '' }}"
+                        href="{{ route('admin.content.eri') }}">
+                            <i class="fas fa-chart-line"></i>
+                            <span>ERI <sup>tm</sup></span>
                         </a>
                     </div>
+
                     <div class="nav-item">
-                        <a href="#" class="nav-link">
-                            <i class="fas fa-ticket-alt"></i>
-                            <span>Support Tickets</span>
+                        <a href="{{ route('admin.content.workforce-passport') }}"
+                        class="nav-link {{ request()->routeIs('admin.content.workforce-passport*') ? 'active' : '' }}">
+                            <i class="fas fa-id-card"></i>
+                            <span>Workforce Passport</span>
                         </a>
                     </div>
                     <div class="nav-item">
@@ -528,29 +539,15 @@
                             About Page
                         </a>
                     </div>
+                    <div class="nav-item">
+                        <a href="{{ route('admin.content.contact') }}"
+                            class="nav-link {{ request()->routeIs('admin.content.contact*') ? 'active' : '' }}">
+                            <i class="fas fa-envelope"></i>
+                            <span>Contact Us</span>
+                        </a>
+                    </div>
                 </div>
                 
-                <div class="nav-section">
-                    <div class="nav-section-title">System</div>
-                    <div class="nav-item">
-                        <a href="#" class="nav-link">
-                            <i class="fas fa-clock"></i>
-                            <span>Audit Logs</span>
-                        </a>
-                    </div>
-                    <div class="nav-item">
-                        <a href="#" class="nav-link">
-                            <i class="fas fa-cog"></i>
-                            <span>Settings</span>
-                        </a>
-                    </div>
-                    <div class="nav-item">
-                        <a href="#" class="nav-link">
-                            <i class="fas fa-shield-alt"></i>
-                            <span>Roles & Permissions</span>
-                        </a>
-                    </div>
-                </div>
             </nav>
         </aside>
         

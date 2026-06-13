@@ -8,37 +8,26 @@ use Illuminate\Http\Request;
 
 class AboutController extends Controller
 {
- public function index()
-{
-    $about = AboutPage::first();
+    protected $splitter;
 
-    $missionCards = $this->splitIntoCards($about->mission_title, $about->mission_description);
-    $infraCards   = $this->splitIntoCards($about->infrastructure_title, $about->infrastructure_description);
-    $impactCards  = $this->splitIntoCards($about->impact_title, $about->impact_description);
+    public function __construct(CardSplitter $splitter)
+    {
+        $this->splitter = $splitter;
+    }
+
+    public function index()
+{
+    $about = AboutPage::firstOrCreate(['id' => 1]);
+
+    $missionCards = $this->splitter->split($about->mission_title ?? 'Mission', $about->mission_description);
+    $infraCards   = $this->splitter->split($about->infrastructure_title ?? 'Infrastructure', $about->infrastructure_description);
+    $impactCards  = $this->splitter->split($about->impact_title ?? 'Impact', $about->impact_description);
 
     return view('pages.about', compact('about', 'missionCards', 'infraCards', 'impactCards'));
 }
-    protected function splitIntoCards($title, $text, $limit = 200)
-    {
-        $words = explode(' ', $text ?? '');
-        $chunks = array_chunk($words, $limit);
-
-        $cards = [];
-
-        foreach ($chunks as $chunk) {
-            $cards[] = [
-                'title' => $title,
-                'text' => implode(' ', $chunk),
-            ];
-        }
-
-        return $cards;
-    }
-
-
     public function edit()
     {
-        $about = AboutPage::first();
+        $about = AboutPage::firstOrCreate(['id' => 1]);
 
         return view('admin.content.about', compact('about'));
     }
@@ -48,7 +37,7 @@ class AboutController extends Controller
      */
     public function update(Request $request)
     {
-        $about = AboutPage::firstOrNew([]);
+        $about = AboutPage::firstOrCreate(['id' => 1]);
 
         $about->fill($request->only([
             'hero_label',
