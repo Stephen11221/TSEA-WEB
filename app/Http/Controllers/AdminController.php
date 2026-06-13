@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Program;
+use App\Models\JobPosting;
+use App\Models\Course;
+use App\Models\Application;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -17,17 +20,19 @@ class AdminController extends Controller
         $totalUsers = User::count();
         $activeUsers = User::where('status', 'active')->count();
         $totalAdmins = User::where('role', 'admin')->count();
+        $totalEmployers = User::where('role', 'employer')->count();
+        $pendingEmployers = User::where('role', 'employer')->where('status', 'pending')->count();
         $newUsersThisMonth = User::whereMonth('created_at', now()->month)
             ->whereYear('created_at', now()->year)
             ->count();
         
-        // Mock data for jobs and courses (will be real once those models are populated)
-        $totalJobs = 0;
-        $activeJobs = 0;
-        $totalCourses = 0;
-        $activeCourses = 0;
-        $totalApplications = 0;
-        $pendingApplications = 0;
+        // Fetched data for jobs, courses, and applications
+        $totalJobs = JobPosting::count();
+        $activeJobs = JobPosting::where('status', 'open')->count();
+        $totalCourses = Course::count();
+        $activeCourses = Course::where('status', '!=', 'draft')->count();
+        $totalApplications = Application::count();
+        $pendingApplications = Application::where('status', 'pending')->count();
         $totalRevenue = 0;
         
         // Recent activities
@@ -48,6 +53,8 @@ class AdminController extends Controller
             'totalUsers' => $totalUsers,
             'activeUsers' => $activeUsers,
             'totalAdmins' => $totalAdmins,
+            'totalEmployers' => $totalEmployers,
+            'pendingEmployers' => $pendingEmployers,
             'newUsersThisMonth' => $newUsersThisMonth,
             'totalJobs' => $totalJobs,
             'activeJobs' => $activeJobs,

@@ -52,7 +52,7 @@ class UserManagementController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'unique:users,email,' . $user->id],
             'role' => ['required', 'in:admin,employer,user,instructor'],
-            'status' => ['required', 'in:active,inactive,suspended'],
+            'status' => ['required', 'in:active,inactive,suspended,pending'],
         ]);
 
         $user->update($validated);

@@ -41,6 +41,17 @@
     </div>
     
     <div class="kpi-card">
+        <div class="kpi-icon primary">
+            <i class="fas fa-building"></i>
+        </div>
+        <div class="kpi-value">{{ $totalEmployers }}</div>
+        <div class="kpi-label">Total Employers</div>
+        <div class="kpi-change change-positive">
+            <i class="fas fa-check-circle"></i> Verified Partners
+        </div>
+    </div>
+
+    <div class="kpi-card">
         <div class="kpi-icon warning">
             <i class="fas fa-briefcase"></i>
         </div>
@@ -172,6 +183,9 @@
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
         <a href="{{ route('admin.users.index') }}" class="btn btn-primary" style="justify-content: center;">
             <i class="fas fa-user-plus"></i> Manage Users
+        </a>
+        <a href="{{ route('admin.employers.index') }}" class="btn btn-primary" style="justify-content: center;">
+            <i class="fas fa-building"></i> Manage Employers
         </a>
         <a href="#" class="btn btn-primary" style="justify-content: center;">
             <i class="fas fa-briefcase"></i> Post Job

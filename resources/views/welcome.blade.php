@@ -12,8 +12,8 @@
         'description' => $homepage->hero_description ?? 'Building Africa’s most trusted workforce infrastructure for learners, employers, institutions and governments.',
         'primary_text' => $homepage->primary_button_text ?? 'Create Workforce Passport',
         'primary_link' => $homepage->primary_button_link ?? route('passport.create'),
-        'secondary_text' => $homepage->secondary_button_text ?? 'Partner With TSEA',
-        'secondary_link' => $homepage->secondary_button_link ?? route('contact'),
+        'secondary_text' => $homepage->secondary_button_text ?? 'Join as Employer',
+        'secondary_link' => $homepage->secondary_button_link ?? route('register.employer'),
     ];
 @endphp
 

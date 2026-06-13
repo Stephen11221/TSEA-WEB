@@ -81,4 +81,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Subscription::class);
     }
+
+    public function employer()
+    {
+        return $this->hasOne(Employer::class);
+    }
 }

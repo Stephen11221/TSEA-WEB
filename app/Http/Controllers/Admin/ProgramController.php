@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Program;
 use App\Models\ProgramPage;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ProgramController extends Controller
 {
@@ -107,6 +108,49 @@ public function store(Request $request)
         return redirect()
             ->back()
             ->with('success', 'Programs page updated successfully.');
+    }
+
+    public function editSingle(Program $program)
+    {
+        return view('admin.content.edit', compact('program'));
+    }
+
+    public function updateSingle(Request $request, Program $program)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'icon' => 'nullable|string|max:255',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+        ]);
+
+        $data = $request->only(['title', 'description', 'icon']);
+
+        if ($request->hasFile('image')) {
+            if ($program->image) {
+                Storage::disk('public')->delete($program->image);
+            }
+            $data['image'] = $request->file('image')->store('programs', 'public');
+        }
+
+        $program->update($data);
+
+        return redirect()
+            ->route('admin.content.program')
+            ->with('success', 'Program updated successfully.');
+    }
+
+    public function delete(Program $program)
+    {
+        if ($program->image) {
+            Storage::disk('public')->delete($program->image);
+        }
+        
+        $program->delete();
+
+        return redirect()
+            ->back()
+            ->with('success', 'Program deleted successfully.');
     }
 
     /**

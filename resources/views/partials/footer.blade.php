@@ -3,7 +3,11 @@
         <div class="footer-brand">
             @include('partials.logo', ['variant' => 'full'])
             <p>One Passport, Endless Opportunities.</p>
-            <p class="brand-statement"><span>Your Identity</span> | <span>Your Opportunity</span> | <span>Your Future</span></p>
+            <div style="margin-top: 15px;">
+                <a href="#" aria-label="TSEA on Twitter"><i class="fas fa-twitter"></i></a>
+                <a href="#" aria-label="TSEA on LinkedIn"><i class="fas fa-linkedin"></i></a>
+                <a href="#" aria-label="TSEA on Facebook"><i class="fas fa-facebook"></i></a>
+            </div>
         </div>
         <div>
             <h2>Platform</h2>

@@ -480,6 +480,12 @@
                         </a>
                     </div>
                     <div class="nav-item">
+                        <a href="{{ route('admin.employers.index') }}" class="nav-link @if(request()->routeIs('admin.employers.*')) active @endif">
+                            <i class="fas fa-building"></i>
+                            <span>Employers</span>
+                        </a>
+                    </div>
+                    <div class="nav-item">
                         <a href="#" class="nav-link">
                             <i class="fas fa-briefcase"></i>
                             <span>Job Postings</span>

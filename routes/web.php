@@ -2,6 +2,7 @@
 use App\Http\Controllers\Admin\AboutController;
 use App\Http\Controllers\Admin\ContactController;
 use App\Http\Controllers\Admin\EriController;
+use App\Http\Controllers\Admin\EmployerController;
 use App\Http\Controllers\Admin\HomePageController;
 use App\Http\Controllers\Admin\ProgramController;
 use App\Http\Controllers\Admin\WorkforcePassportController;
@@ -29,6 +30,7 @@ Route::controller(AuthController::class)->group(function () {
         Route::post('/login', 'login')->name('login.store');
         Route::get('/register', 'showRegister')->name('register');
         Route::post('/register', 'register')->name('register.store');
+        Route::get('/register/employer', [AuthController::class, 'showEmployerRegister'])->name('register.employer');
     });
     Route::post('/logout', 'logout')->name('logout')->middleware('auth');
 });
@@ -58,6 +60,16 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->cont
     Route::put('/users/{user}', 'updateUser')->name('users.update');
     Route::delete('/users/{user}', 'deleteUser')->name('users.delete');
     Route::get('/passports', 'passports')->name('passports.index');
+
+    // Employer Management
+    Route::get('/employers', [EmployerController::class, 'index'])->name('employers.index');
+    Route::get('/employers/create', [EmployerController::class, 'create'])->name('employers.create');
+    Route::post('/employers', [EmployerController::class, 'store'])->name('employers.store');
+    Route::get('/employers/{employer}/edit', [EmployerController::class, 'edit'])->name('employers.edit');
+    Route::put('/employers/{employer}', [EmployerController::class, 'update'])->name('employers.update');
+    Route::post('/employers/{employer}/approve', [EmployerController::class, 'approve'])->name('employers.approve');
+    Route::delete('/employers/{employer}', [EmployerController::class, 'destroy'])->name('employers.destroy');
+
     Route::get('/programs', 'programs')->name('programs.index');
 
     // Content Management
@@ -67,6 +79,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->cont
     Route::post('/content/workforce-passport', [WorkforcePassportController::class, 'update'])->name('content.workforce-passport.update');
     Route::get('/content/programs', [ProgramController::class, 'edit'])->name('content.program');
     Route::post('/content/programs', [ProgramController::class, 'update'])->name('content.program.update');
+    Route::get('/content/programs/{program}/edit', [ProgramController::class, 'editSingle'])->name('content.program.edit-single');
+    Route::put('/content/programs/{program}', [ProgramController::class, 'updateSingle'])->name('content.program.update-single');
+    Route::delete('/content/programs/{program}', [ProgramController::class, 'delete'])->name('content.program.delete');
     Route::post('/content/programs/store', [ProgramController::class, 'store'])->name('content.program.store');
     Route::post('/content/programs/restore', [ProgramController::class, 'restoreDefaults'])->name('content.program.restore');
     Route::get('/content/contact', [ContactController::class, 'edit'])->name('content.contact');
