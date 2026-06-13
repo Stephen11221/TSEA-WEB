@@ -12,9 +12,8 @@ class ProgramController extends Controller
 {
     /**
      * Show Programs Dashboard
-
-    */
-    public function index()
+     */
+    public function index(Request $request)
     {
         $page = ProgramPage::firstOrCreate(
             ['id' => 1],
@@ -24,9 +23,30 @@ class ProgramController extends Controller
                 'hero_description' => 'Discover readiness, digital skills, leadership and entrepreneurship programs aligned to market demand.',
             ]
         );
-        $programs = Program::latest()->get();
 
-        if ($programs->isEmpty()) {
+        $query = Program::query();
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('category')) {
+            $query->where('category', $request->category);
+        }
+
+        if ($request->filled('level')) {
+            $query->where('level', $request->level);
+        }
+
+        $programs = $query->latest()->get();
+
+        $hasFilters = $request->filled('search') || $request->filled('category') || $request->filled('level');
+
+        if ($programs->isEmpty() && !$hasFilters) {
             $programs = collect([
                 ['title' => 'Career Readiness', 'description' => 'Build interview confidence, CV quality and workplace behaviours.', 'icon' => 'fa-user-tie'],
                 ['title' => 'Digital Skills', 'description' => 'Gain practical tools for modern work and AI-enabled productivity.', 'icon' => 'fa-laptop-code'],

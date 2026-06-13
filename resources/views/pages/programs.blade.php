@@ -5,7 +5,21 @@
 <section class="page-hero centered"><div class="container"><span class="eyebrow">{{ $page->hero_label }}</span><h1>{{ $page->hero_title }}</h1><p>{{ $page->hero_description }}</p></div></section>
 <section class="section">
     <div class="container">
-        <form class="filter-bar" aria-label="Program filters"><input type="search" placeholder="Search programs..."><select><option>All Categories</option><option>Digital Skills</option><option>Leadership</option></select><select><option>All Levels</option><option>Beginner</option><option>Advanced</option></select><button class="btn btn-primary btn-sm">Search</button></form>
+        <form class="filter-bar" action="{{ route('programs') }}" method="GET" aria-label="Program filters">
+            <input type="search" name="search" value="{{ request('search') }}" placeholder="Search programs...">
+            <select name="category">
+                <option value="">All Categories</option>
+                @foreach(['Digital Skills', 'Leadership', 'Entrepreneurship', 'Career Readiness', 'Future Skills', 'Executive Programs'] as $category)
+                    <option value="{{ $category }}" {{ request('category') == $category ? 'selected' : '' }}>{{ $category }}</option>
+                @endforeach
+            </select>
+            <select name="level">
+                <option value="">All Levels</option>
+                <option value="Beginner" {{ request('level') == 'Beginner' ? 'selected' : '' }}>Beginner</option>
+                <option value="Advanced" {{ request('level') == 'Advanced' ? 'selected' : '' }}>Advanced</option>
+            </select>
+            <button type="submit" class="btn btn-primary btn-sm">Search</button>
+        </form>
         <div class="grid three">
             @foreach ($programs as $program)
                 <article class="card program-card">
