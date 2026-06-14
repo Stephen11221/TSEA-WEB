@@ -134,9 +134,9 @@
 <section class="section">
     <div class="container-fluid">
 
-```
+
     <!-- Header -->
-    <div class="mb-4">
+    <div class="bg-gradient-primary text-black p-4 rounded-top mb-1 card-header top-header">
         <h1 class="page-title">Manage Users</h1>
         <p class="text-muted mb-0">
             View, update and manage all registered users.
@@ -256,7 +256,6 @@
     </div>
 
 </div>
-```
 
 </section>
 
