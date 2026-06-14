@@ -10,7 +10,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\Admin\UserManagementController; // Import the UserManagementController
 
 Route::get('/', [HomePageController::class, 'showHomepage'])->name('home');
 Route::get('/about', [AboutController::class, 'index'])->name('about');
@@ -55,11 +55,17 @@ Route::middleware(['auth', 'role:user'])->prefix('user')->name('user.')->control
 // Admin Routes
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->controller(AdminController::class)->group(function () {
     Route::get('/dashboard', 'dashboard')->name('dashboard');
-    Route::get('/users', 'users')->name('users.index');
-    Route::get('/users/{user}', 'showUser')->name('users.show');
-    Route::get('/users/{user}/edit', 'editUser')->name('users.edit');
-    Route::put('/users/{user}', 'updateUser')->name('users.update');
-    Route::delete('/users/{user}', 'deleteUser')->name('users.delete');
+
+    // User Management routes using UserManagementController
+    Route::controller(UserManagementController::class)->group(function () {
+        Route::get('/users', 'index')->name('users.index');
+        Route::get('/users/create', 'create')->name('users.create'); // Added route
+        Route::post('/users', 'store')->name('users.store'); // Added route
+        Route::get('/users/{user}', 'show')->name('users.show'); // Mapped to UserManagementController@show
+        Route::get('/users/{user}/edit', 'edit')->name('users.edit');
+        Route::put('/users/{user}', 'update')->name('users.update');
+        Route::delete('/users/{user}', 'destroy')->name('users.delete');
+    });
     Route::get('/passports', 'passports')->name('passports.index');
 
     // Employer Management

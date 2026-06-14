@@ -32,7 +32,7 @@
                             <th class="border-top-0" style="width: 120px;">Phone</th>
                             <th class="border-top-0" style="width: 150px;">Organization</th>
                             <th class="border-top-0">Stakeholder</th>
-                            <th class="border-top-0">Message</th> {{-- Removed max-width for better expansion --}}
+                            <th class="border-top-0" style="width: 300px;">Message</th> {{-- Removed max-width for better expansion --}}
                             <th class="border-top-0 text-end px-4">Actions</th>
                         </tr>
                     </thead>
@@ -58,7 +58,7 @@
                                 <td style="vertical-align: top;">
                                     <span class="badge bg-info text-white">{{ $submission->stakeholder }}</span>
                                 </td>
-                                <td style="vertical-align: top;">
+                                <td style="vertical-align: top; ">
                                     {{-- Added max-height and overflow-y for better message display without breaking layout --}}
                                     <div style="font-size: 0.9rem; max-height: 100px; overflow-y: auto; padding-right: 5px;">
                                         {{ $submission->message }}
