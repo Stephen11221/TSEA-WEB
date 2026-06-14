@@ -21,6 +21,7 @@ Route::view('/employers', 'pages.employers')->name('employers');
 Route::view('/institutions', 'pages.institutions')->name('institutions');
 Route::view('/workforce-intelligence', 'pages.workforce-intelligence')->name('intelligence');
 Route::get('/contact', [ContactController::class, 'index'])->name('contact');
+Route::post('/contact', [ContactController::class, 'send'])->name('contact.send');
 Route::get('/create-passport', [WorkforcePassportController::class, 'workforcePassport'])->name('passport.create');
 
 // Authentication Routes
@@ -86,6 +87,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->cont
     Route::post('/content/programs/restore', [ProgramController::class, 'restoreDefaults'])->name('content.program.restore');
     Route::get('/content/contact', [ContactController::class, 'edit'])->name('content.contact');
     Route::post('/content/contact', [ContactController::class, 'update'])->name('content.contact.update');
+    Route::get('/contact-submissions', [ContactController::class, 'submissions'])->name('contact.submissions');
+    Route::delete('/contact-submissions/{submission}', [ContactController::class, 'destroySubmission'])->name('contact.submissions.delete');
     Route::post('/content/contact/restore', [ContactController::class, 'restore'])->name('content.contact.restore');
 
     Route::get('/pages/{page}/edit', 'editPage')->name('pages.edit');

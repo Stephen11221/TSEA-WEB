@@ -486,6 +486,12 @@
                         </a>
                     </div>
                     <div class="nav-item">
+                        <a href="{{ route('admin.contact.submissions') }}" class="nav-link @if(request()->routeIs('admin.contact.submissions')) active @endif">
+                            <i class="fas fa-inbox"></i>
+                            <span>Contact Submissions</span>
+                        </a>
+                    </div>
+                    <div class="nav-item">
                         <a href="#" class="nav-link">
                             <i class="fas fa-briefcase"></i>
                             <span>Job Postings</span>
