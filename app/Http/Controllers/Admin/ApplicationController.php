@@ -12,7 +12,12 @@ class ApplicationController extends Controller
 {
     public function index(): View
     {
-        $applications = Application::with(['user', 'program'])->latest()->paginate(15);
+        // Fetch all applications with eager-loaded user, job, and the job's employer
+        $applications = Application::with([
+            'user', 
+            'job.employer'
+        ])->latest()->paginate(15);
+
         return view('admin.applications.index', compact('applications'));
     }
 
