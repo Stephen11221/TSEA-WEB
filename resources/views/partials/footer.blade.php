@@ -3,11 +3,32 @@
         <div class="footer-brand">
             @include('partials.logo', ['variant' => 'full'])
             <p>One Passport, Endless Opportunities.</p>
-            <div style="margin-top: 15px;">
-                <a href="#" aria-label="TSEA on Twitter"><i class="fas fa-twitter"></i></a>
-                <a href="#" aria-label="TSEA on LinkedIn"><i class="fas fa-linkedin"></i></a>
-                <a href="#" aria-label="TSEA on Facebook"><i class="fas fa-facebook"></i></a>
-            </div>
+            <div style="margin-top: 15px; display:flex; gap:15px;">
+    <a href="https://facebook.com/tseaafrica" target="_blank" aria-label="TSEA on Facebook">
+        <i class="fab fa-facebook-f"></i>
+    </a>
+
+    <a href="https://twitter.com/tseaafrica" target="_blank" aria-label="TSEA on X">
+        <i class="fab fa-x-twitter"></i>
+    </a>
+
+    <a href="https://linkedin.com/company/tsea-africa" target="_blank" aria-label="TSEA on LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+    </a>
+
+    <a href="https://instagram.com/tseaafrica" target="_blank" aria-label="TSEA on Instagram">
+        <i class="fab fa-instagram"></i>
+    </a>
+
+    <a href="https://wa.me/254700000000" target="_blank" aria-label="TSEA on WhatsApp">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+    <a href="https://youtube.com/@tseaafrica" target="_blank" aria-label="TSEA on YouTube">
+        <i class="fab fa-youtube"></i>
+    </a>
+</div>
+
         </div>
         <div>
             <h2>Platform</h2>

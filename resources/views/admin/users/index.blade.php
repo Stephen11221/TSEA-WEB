@@ -1,394 +1,427 @@
 @extends('admin.layouts.admin')
 
 @section('title', 'Manage Users - TSEA Admin')
-@section('description', 'Manage TSEA Users')
 
 @section('content')
-<div class="p-6 bg-gray-50 min-h-screen">
-    <!-- Page Header -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
-        <div>
-            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">User Directory</h1>
-            <p class="text-sm text-gray-500 mt-1">Manage platform users, roles, and account permissions.</p>
-        </div>
-        <div class="flex items-center gap-3">
-            <a href="{{ route('admin.users.create') }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-lg font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-sm">
-                <i class="fas fa-plus mr-2"></i> Add New User
-            </a>
-        </div>
-    </div>
 
 <style>
-    .page-title {
-        font-size: 2rem;
-        font-weight: 700;
-        color: #0F4C81;
-        margin-bottom: .25rem;
-    }
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
 
-    .card {
-        border: none;
-        border-radius: 14px;
-        overflow: hidden;
-        background: #fff;
-    }
+body{
+    font-family:Arial, Helvetica, sans-serif;
+}
 
-    .card-header {
-        padding: 1.25rem 1.5rem;
-        border-bottom: 1px solid #e9ecef;
-    }
+.page-container{
+    padding:30px;
+    background:#f8fafc;
+    min-height:100vh;
+}
 
-    .table-responsive {
-        padding: 1rem;
-    }
+.header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+    flex-wrap:wrap;
+    gap:15px;
+}
 
-    .table {
-        border-collapse: separate;
-        border-spacing: 0 10px;
-        margin-bottom: 0;
-    }
+.title{
+    font-size:32px;
+    font-weight:700;
+    color:#111827;
+}
 
-    .table thead th {
-        background: #f8f9fa;
-        color: #495057;
-        font-weight: 600;
-        padding: 1rem 1.5rem;
-        border: none;
-        white-space: nowrap;
-    }
+.subtitle{
+    color:#6b7280;
+    margin-top:5px;
+}
 
-    .table tbody tr {
-        background: #fff;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
-        transition: all .2s ease;
-    }
+.btn-primary{
+    background:#4f46e5;
+    color:#fff;
+    text-decoration:none;
+    padding:12px 18px;
+    border-radius:8px;
+    font-weight:600;
+}
 
-    .table tbody tr:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-    }
+.btn-primary:hover{
+    background:#4338ca;
+}
 
-    .table tbody td {
-        padding: 1.25rem 1.5rem;
-        vertical-align: middle;
-        border: none;
-    }
+.stats{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:20px;
+    margin-bottom:25px;
+}
 
-    .table tbody tr td:first-child {
-        border-radius: 12px 0 0 12px;
-    }
+.stat-card{
+    background:#fff;
+    border-radius:12px;
+    padding:20px;
+    box-shadow:0 2px 8px rgba(0,0,0,.05);
+}
 
-    .table tbody tr td:last-child {
-        border-radius: 0 12px 12px 0;
-    }
+.stat-card h3{
+    font-size:28px;
+    margin-bottom:5px;
+}
 
-    .badge {
-        padding: .55rem .9rem;
-        border-radius: 50px;
-        font-size: .75rem;
-        font-weight: 600;
-    }
+.stat-card p{
+    color:#6b7280;
+    font-size:14px;
+}
 
-    .bg-admin {
-        background: #dc3545;
-        color: #fff;
-    }
+.card{
+    background:#fff;
+    border-radius:12px;
+    overflow:hidden;
+    box-shadow:0 2px 8px rgba(0,0,0,.05);
+}
 
-    .bg-user {
-        background: #0d6efd;
-        color: #fff;
-    }
+.card-header{
+    padding:20px;
+    border-bottom:1px solid #e5e7eb;
+}
 
-    .btn {
-        border-radius: 8px;
-        padding: .45rem .9rem;
-        font-size: .875rem;
-    }
+.search-box{
+    padding:20px;
+    border-bottom:1px solid #e5e7eb;
+}
 
-    .action-buttons {
-        display: flex;
-        gap: .5rem;
-        flex-wrap: wrap;
-    }
+.search-input{
+    width:100%;
+    max-width:350px;
+    padding:10px 15px;
+    border:1px solid #d1d5db;
+    border-radius:8px;
+    outline:none;
+}
 
-    .alert {
-        border-radius: 10px;
-        border: none;
-    }
+.search-input:focus{
+    border-color:#4f46e5;
+}
 
-    .empty-state {
-        padding: 3rem;
-        text-align: center;
-        color: #6c757d;
-    }
+.table-responsive{
+    overflow-x:auto;
+}
 
-    .pagination {
-        margin: 0;
-    }
+table{
+    width:100%;
+    border-collapse:collapse;
+}
 
-    .card-footer {
-        background: #fff;
-        border-top: 1px solid #e9ecef;
-        padding: 1rem 1.5rem;
-    }
+th{
+    background:#f9fafb;
+    text-align:left;
+    padding:15px;
+    font-size:13px;
+}
 
-    @media (max-width: 768px) {
-        .table thead th,
-        .table tbody td {
-            padding: 1rem;
-        }
+td{
+    padding:15px;
+    border-top:1px solid #e5e7eb;
+}
 
-        .action-buttons {
-            flex-direction: column;
-        }
-    }
+tr:hover{
+    background:#f9fafb;
+}
+
+.user-info{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.avatar{
+    width:40px;
+    height:40px;
+    border-radius:50%;
+    background:#e0e7ff;
+    color:#4338ca;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:bold;
+}
+
+.badge{
+    padding:6px 12px;
+    border-radius:20px;
+    font-size:12px;
+    font-weight:600;
+}
+
+.admin{
+    background:#f3e8ff;
+    color:#7c3aed;
+}
+
+.user{
+    background:#dbeafe;
+    color:#2563eb;
+}
+
+.employer{
+    background:#ccfbf1;
+    color:#0f766e;
+}
+
+.actions{
+    display:flex;
+    gap:8px;
+}
+
+.btn{
+    border:none;
+    padding:8px 10px;
+    border-radius:6px;
+    cursor:pointer;
+    text-decoration:none;
+}
+
+.view{
+    background:#dbeafe;
+    color:#2563eb;
+}
+
+.edit{
+    background:#fef3c7;
+    color:#d97706;
+}
+
+.delete{
+    background:#fee2e2;
+    color:#dc2626;
+}
+
+.alert-success{
+    background:#dcfce7;
+    color:#166534;
+    padding:15px;
+    margin-bottom:20px;
+    border-radius:8px;
+}
+
+.empty{
+    text-align:center;
+    padding:40px;
+    color:#6b7280;
+}
+
+.pagination-wrapper{
+    padding:20px;
+}
 </style>
 
-<section class="section">
-    <div class="container-fluid">
+<div class="page-container">
 
-
-    <!-- Header -->
-    <div class="bg-gradient-primary text-black p-4 rounded-top mb-1 card-header top-header">
-        <h1 class="page-title">Manage Users</h1>
-        <p class="text-muted mb-0">
-            View, update and manage all registered users.
-        </p>
-    <!-- Summary Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 transition-all hover:shadow-md">
-            <div class="flex items-center justify-between mb-4">
-                <div class="p-2 bg-blue-50 rounded-lg"><i class="fas fa-users text-blue-600"></i></div>
-                <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total</span>
-            </div>
-            <h3 class="text-2xl font-bold text-gray-800">{{ $users->total() }}</h3>
-            <p class="text-xs text-gray-500 mt-1 font-medium">Registered accounts</p>
-        </div>
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 transition-all hover:shadow-md">
-            <div class="flex items-center justify-between mb-4">
-                <div class="p-2 bg-green-50 rounded-lg"><i class="fas fa-check-circle text-green-600"></i></div>
-                <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Active</span>
-            </div>
-            <h3 class="text-2xl font-bold text-gray-800">{{ $users->where('status', 'active')->count() }}</h3>
-            <p class="text-xs text-green-600 mt-1 font-medium italic">Current users</p>
-        </div>
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 transition-all hover:shadow-md">
-            <div class="flex items-center justify-between mb-4">
-                <div class="p-2 bg-yellow-50 rounded-lg"><i class="fas fa-clock text-yellow-600"></i></div>
-                <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Pending</span>
-            </div>
-            <h3 class="text-2xl font-bold text-gray-800">{{ $users->where('status', 'pending')->count() }}</h3>
-            <p class="text-xs text-yellow-600 mt-1 font-medium italic">Awaiting approval</p>
-        </div>
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 transition-all hover:shadow-md">
-            <div class="flex items-center justify-between mb-4">
-                <div class="p-2 bg-red-50 rounded-lg"><i class="fas fa-user-slash text-red-600"></i></div>
-                <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Inactive</span>
-            </div>
-            <h3 class="text-2xl font-bold text-gray-800">{{ $users->where('status', 'inactive')->count() }}</h3>
-            <p class="text-xs text-red-600 mt-1 font-medium italic">Suspended accounts</p>
-        </div>
+```
+<div class="header">
+    <div>
+        <h1 class="title">User Directory</h1>
+        <p class="subtitle">Manage platform users, roles and permissions.</p>
     </div>
 
-    <!-- Success Message -->
-    <!-- Success Alerts -->
-    @if(session('success'))
-        <div class="alert alert-success shadow-sm mb-4">
-            {{ session('success') }}
-        <div class="mb-6 p-4 rounded-xl bg-green-50 border-l-4 border-green-500 flex items-center shadow-sm">
-            <i class="fas fa-check-circle text-green-500 mr-3"></i>
-            <span class="text-green-800 font-medium">{{ session('success') }}</span>
-        </div>
-    @endif
+    <a href="{{ route('admin.users.create') }}" class="btn-primary">
+        + Add User
+    </a>
+</div>
 
-    <!-- Users Card -->
-    <div class="card shadow-sm">
+@if(session('success'))
+    <div class="alert-success">
+        {{ session('success') }}
+    </div>
+@endif
 
-        <div class="card-header">
-            <h5 class="mb-0">User Directory</h5>
-    <!-- Main Content Card -->
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <!-- Search and Filter Bar -->
-        <div class="px-6 py-4 border-bottom border-gray-100 bg-gray-50/50 flex flex-col sm:flex-row gap-4 items-center justify-between">
-            <div class="relative w-full sm:max-w-xs">
-                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
-                    <i class="fas fa-search"></i>
-                </span>
-                <input type="text" placeholder="Search users..." class="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg leading-5 bg-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition duration-150">
-            </div>
-            <div class="flex items-center gap-3 w-full sm:w-auto">
-                <select class="block w-full pl-3 pr-10 py-2 text-sm border-gray-200 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded-lg bg-white transition duration-150">
-                    <option>All Roles</option>
-                    <option>Admin</option>
-                    <option>Employer</option>
-                    <option>User</option>
-                </select>
-                <button class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors">
-                    <i class="fas fa-filter"></i>
-                </button>
-            </div>
-        </div>
+<div class="stats">
+    <div class="stat-card">
+        <h3>{{ $users->total() }}</h3>
+        <p>Total Users</p>
+    </div>
 
-        <div class="table-responsive">
-            <table class="table align-middle">
+    <div class="stat-card">
+        <h3>{{ $users->where('status','active')->count() }}</h3>
+        <p>Active Users</p>
+    </div>
 
-        <!-- Table -->
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Email Address</th>
-                        <th>Role</th>
-                        <th>Created Date</th>
-                        <th width="250">Actions</th>
-                    <tr class="bg-gray-50/80">
-                        <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">User Profile</th>
-                        <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-center">Role</th>
-                        <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-center">Status</th>
-                        <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Joined Date</th>
-                        <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Actions</th>
-                    </tr>
-                </thead>
+    <div class="stat-card">
+        <h3>{{ $users->where('status','pending')->count() }}</h3>
+        <p>Pending Users</p>
+    </div>
 
-                <tbody>
-                <tbody class="divide-y divide-gray-100">
-                    @forelse($users as $user)
-                        <tr>
+    <div class="stat-card">
+        <h3>{{ $users->where('status','inactive')->count() }}</h3>
+        <p>Inactive Users</p>
+    </div>
+</div>
 
-                            <td>
+<div class="card">
+
+    <div class="card-header">
+        <h2>Manage Users</h2>
+    </div>
+
+    <div class="search-box">
+        <input
+            type="text"
+            id="searchUsers"
+            class="search-input"
+            placeholder="Search users..."
+        >
+    </div>
+
+    <div class="table-responsive">
+
+        <table id="usersTable">
+
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+            @forelse($users as $user)
+
+                <tr>
+
+                    <td>
+                        <div class="user-info">
+                            <div class="avatar">
+                                {{ strtoupper(substr($user->name,0,1)) }}
+                            </div>
+
+                            <div>
                                 <strong>{{ $user->name }}</strong>
-                        <tr class="hover:bg-gray-50/50 transition-colors group">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="h-10 w-10 flex-shrink-0 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-sm">
-                                        {{ strtoupper(substr($user->name, 0, 1)) }}
-                                    </div>
-                                    <div class="ml-4">
-                                        <div class="text-sm font-bold text-gray-900">{{ $user->name }}</div>
-                                        <div class="text-xs text-gray-500">{{ $user->email }}</div>
-                                    </div>
-                                </div>
-                            </td>
+                            </div>
+                        </div>
+                    </td>
 
-                            <td>
-                                {{ $user->email }}
-                            </td>
+                    <td>{{ $user->email }}</td>
 
-                            <td>
-                            <td class="px-6 py-4 whitespace-nowrap text-center">
-                                @if($user->isAdmin())
-                                    <span class="badge bg-admin">
-                                        Admin
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-purple-800 shadow-sm border border-purple-200">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-purple-500 mr-1.5"></span> Admin
-                                    </span>
-                                @elseif($user->role === 'employer')
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 shadow-sm border border-blue-200">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-blue-500 mr-1.5"></span> Employer
-                                    </span>
-                                @else
-                                    <span class="badge bg-user">
-                                        User
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-800 shadow-sm border border-gray-200">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-gray-500 mr-1.5"></span> User
-                                    </span>
-                                @endif
-                            </td>
+                    <td>
+                        @if($user->isAdmin())
+                            <span class="badge admin">Admin</span>
+                        @elseif($user->role == 'employer')
+                            <span class="badge employer">Employer</span>
+                        @else
+                            <span class="badge user">User</span>
+                        @endif
+                    </td>
 
-                            <td>
-                            <td class="px-6 py-4 whitespace-nowrap text-center">
-                                @php
-                                    $statusClasses = match($user->status ?? 'active') {
-                                        'active' => 'bg-green-100 text-green-800 border-green-200',
-                                        'pending' => 'bg-yellow-100 text-yellow-800 border-yellow-200',
-                                        'inactive', 'suspended' => 'bg-red-100 text-red-800 border-red-200',
-                                        default => 'bg-gray-100 text-gray-800 border-gray-200',
-                                    };
-                                @endphp
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider border {{ $statusClasses }}">
-                                    {{ $user->status ?? 'Active' }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {{ $user->created_at->format('M d, Y') }}
-                            </td>
+                    <td>{{ ucfirst($user->status ?? 'active') }}</td>
 
-                            <td>
-                                <div class="action-buttons">
+                    <td>{{ $user->created_at->format('M d, Y') }}</td>
 
-                                    <a href="{{ route('admin.users.show', $user) }}"
-                                       class="btn btn-outline-info">
-                                        View
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <div class="flex justify-end gap-2">
-                                    <a href="{{ route('admin.users.show', $user) }}" class="text-indigo-500 hover:text-indigo-700 p-2 bg-indigo-50 rounded-md transition-colors" title="View Details">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
+                    <td>
+                        <div class="actions">
 
-                                    <a href="{{ route('admin.users.edit', $user) }}"
-                                       class="btn btn-outline-warning">
-                                        Edit
-                                    <a href="{{ route('admin.users.edit', $user) }}" class="text-amber-500 hover:text-amber-700 p-2 bg-amber-50 rounded-md transition-colors" title="Edit User">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
+                            <a href="{{ route('admin.users.show',$user) }}"
+                               class="btn view">
+                                View
+                            </a>
 
-                                    @if(auth()->id() !== $user->id)
-                                        <form action="{{ route('admin.users.delete', $user) }}"
-                                              method="POST"
-                                              style="display:inline;">
-                                        <form action="{{ route('admin.users.delete', $user) }}" method="POST" class="inline" onsubmit="return confirm('Archive this user account?')">
-                                            @csrf
-                                            @method('DELETE')
+                            <a href="{{ route('admin.users.edit',$user) }}"
+                               class="btn edit">
+                                Edit
+                            </a>
 
-                                            <button type="submit"
-                                                    class="btn btn-outline-danger"
-                                                    onclick="return confirm('Are you sure you want to delete this user?')">
-                                                Delete
-                                            <button type="submit" class="text-red-500 hover:text-red-700 p-2 bg-red-50 rounded-md transition-colors" title="Delete User">
-                                                <i class="fas fa-trash-alt"></i>
-                                            </button>
-                                        </form>
-                                    @endif
+                            @if(auth()->id() != $user->id)
 
-                                </div>
-                            </td>
+                            <form action="{{ route('admin.users.delete',$user) }}"
+                                  method="POST">
 
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="5">
-                                <div class="empty-state">
-                                    <h5>No Users Found</h5>
-                                    <p class="mb-0">
-                                        Registered users will appear here.
-                                    </p>
-                            <td colspan="5" class="px-6 py-12 text-center">
-                                <div class="flex flex-col items-center">
-                                    <div class="p-3 bg-gray-100 rounded-full mb-3"><i class="fas fa-search text-gray-400"></i></div>
-                                    <p class="text-gray-500 font-medium">No users found matching your criteria.</p>
-                                    <a href="{{ route('admin.users.index') }}" class="text-indigo-600 text-sm mt-1 hover:underline">Clear all filters</a>
-                                </div>
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
+                                @csrf
+                                @method('DELETE')
 
-            </table>
-        </div>
+                                <button type="submit"
+                                        class="btn delete delete-user">
+                                    Delete
+                                </button>
 
-        <!-- Pagination -->
-        @if($users->hasPages())
-            <div class="card-footer">
-            <div class="px-6 py-4 bg-gray-50 border-top border-gray-100">
-                {{ $users->links() }}
-            </div>
-        @endif
+                            </form>
 
+                            @endif
+
+                        </div>
+                    </td>
+
+                </tr>
+
+            @empty
+
+                <tr>
+                    <td colspan="6">
+                        <div class="empty">
+                            No users found.
+                        </div>
+                    </td>
+                </tr>
+
+            @endforelse
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    <div class="pagination-wrapper">
+        {{ $users->links() }}
     </div>
 
 </div>
+```
 
-</section>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+
+    const searchInput = document.getElementById('searchUsers');
+
+    searchInput.addEventListener('keyup', function(){
+
+        let value = this.value.toLowerCase();
+
+        document.querySelectorAll('#usersTable tbody tr').forEach(function(row){
+
+            let text = row.textContent.toLowerCase();
+
+            row.style.display = text.includes(value)
+                ? ''
+                : 'none';
+
+        });
+
+    });
+
+    document.querySelectorAll('.delete-user').forEach(function(btn){
+
+        btn.addEventListener('click', function(e){
+
+            if(!confirm('Are you sure you want to delete this user?')){
+                e.preventDefault();
+            }
+
+        });
+
+    });
+
+});
+</script>
 
 @endsection
