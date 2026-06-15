@@ -17,10 +17,12 @@ class UserController extends Controller
         $user = auth()->user();
         $passports = $user->passport; // Assuming a user has one passport
         $applications = $user->applications()->latest()->take(5)->get(); // Get recent applications
+        $unreadNotificationsCount = $user->notifications()->unread()->count(); // Get unread notifications count
         $recommendedPrograms = Program::where('is_active', true)->inRandomOrder()->take(3)->get(); // Fetch some recommended programs
         
         return view('user.dashboard', [
             'user' => $user,
+            'unreadNotificationsCount' => $unreadNotificationsCount, // Pass unread notifications count
             'passports' => $passports, // Pass the user's passport
             'applications' => $applications, // Pass recent applications
             'recommendedPrograms' => $recommendedPrograms, // Pass recommended programs
@@ -162,5 +164,31 @@ class UserController extends Controller
         ]);
 
         return back()->with('success', 'Password changed successfully');
+    }
+
+    /**
+     * Display a listing of the user's notifications.
+     */
+    public function notificationsIndex()
+    {
+        $user = auth()->user();
+        $notifications = $user->notifications()->latest()->paginate(10); // Paginate for large number of notifications
+        return view('user.notifications.index', compact('notifications'));
+    }
+
+    /**
+     * Mark a notification as read.
+     *
+     * @param  \App\Models\Notification  $notification
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function markNotificationAsRead(Notification $notification)
+    {
+        // Ensure the notification belongs to the authenticated user
+        if ($notification->user_id !== auth()->id()) {
+            abort(403);
+        }
+        $notification->update(['read_at' => now()]);
+        return back()->with('success', 'Notification marked as read.');
     }
 }

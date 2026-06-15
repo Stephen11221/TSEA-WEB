@@ -45,6 +45,8 @@ Route::middleware(['auth', 'role:user'])->prefix('user')->name('user.')->control
     Route::get('/opportunities/search', 'searchOpportunities')->name('opportunities.search');
     Route::get('/opportunities/{id}', 'viewOpportunity')->name('opportunities.show');
     Route::post('/opportunities/{id}/apply', 'applyOpportunity')->name('opportunities.apply');
+    Route::get('/notifications', 'notificationsIndex')->name('notifications.index');
+    Route::post('/notifications/{notification}/read', 'markNotificationAsRead')->name('notifications.markAsRead');
     Route::get('/profile', 'profile')->name('profile');
     Route::get('/profile/edit', 'editProfile')->name('profile.edit');
     Route::put('/profile', 'updateProfile')->name('profile.update');

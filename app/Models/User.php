@@ -82,6 +82,17 @@ class User extends Authenticatable
         return $this->hasMany(Subscription::class);
     }
 
+    /**
+     * Get the user's notifications.
+     * This overrides the default Notifiable trait relationship to use the custom table.
+     * 
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
+    }
+
     public function employer()
     {
         return $this->hasOne(Employer::class);
