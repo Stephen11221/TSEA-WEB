@@ -4,20 +4,12 @@
 
 @section('content')
 <div class="container py-5">
-    <h1 class="mb-4">My Workforce Passports</h1>
-    <div class="card">
     <div class="d-flex justify-content-between align-items-center mb-5">
         <div>
             <h1 class="fw-bold" style="color: var(--color-dark);">Workforce Passport</h1>
             <p class="text-muted">Your verified digital identity and readiness credentials.</p>
         </div>
         @if($passports)
-            <p>This page will display details of your Workforce Passport.</p>
-            <p>Passport Number: {{ $passports->passport_number }}</p>
-            <p>Status: {{ ucfirst($passports->status) }}</p>
-            {{-- Display more passport details here --}}
-        @else
-            <p>You don't have a Workforce Passport yet. <a href="{{ route('user.passport.create') }}">Create one now!</a></p>
             <button onclick="window.print()" class="btn btn-secondary shadow-sm">
                 <i class="fas fa-print"></i> Download PDF
             </button>

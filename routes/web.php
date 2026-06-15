@@ -46,6 +46,7 @@ Route::middleware(['auth', 'role:user'])->prefix('user')->name('user.')->control
     Route::get('/opportunities/{id}', 'viewOpportunity')->name('opportunities.show');
     Route::post('/opportunities/{id}/apply', 'applyOpportunity')->name('opportunities.apply');
     Route::get('/notifications', 'notificationsIndex')->name('notifications.index');
+    Route::get('/applications', 'applicationsIndex')->name('applications.index');
     Route::post('/notifications/{notification}/read', 'markNotificationAsRead')->name('notifications.markAsRead');
     Route::get('/profile', 'profile')->name('profile');
     Route::get('/profile/edit', 'editProfile')->name('profile.edit');
@@ -56,10 +57,13 @@ Route::middleware(['auth', 'role:user'])->prefix('user')->name('user.')->control
 
 // Employer Routes
 Route::middleware(['auth', 'role:employer'])->prefix('employer')->name('employer.')->group(function () {
-    Route::get('/dashboard', function () {
-        return view('employer.dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [\App\Http\Controllers\Employer\JobPostingController::class, 'dashboard'])->name('dashboard');
     Route::resource('jobs', \App\Http\Controllers\Employer\JobPostingController::class);
+    
+    // View applications for employer's jobs
+    Route::get('/applications', [\App\Http\Controllers\Employer\JobPostingController::class, 'applications'])->name('applications.index');
+    Route::get('/applications/{application}', [\App\Http\Controllers\Employer\JobPostingController::class, 'showApplication'])->name('applications.show');
+    Route::put('/applications/{application}/status', [\App\Http\Controllers\Employer\JobPostingController::class, 'updateStatus'])->name('applications.updateStatus');
 });
 
 // Admin Routes
@@ -77,6 +81,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->cont
         Route::delete('/users/{user}', 'destroy')->name('users.delete');
     });
     Route::get('/passports', 'passports')->name('passports.index');
+    Route::get('/applications', 'applicationsIndex')->name('applications.index'); // Global application tracker
 
     // Employer Management
     Route::get('/employers', [EmployerController::class, 'index'])->name('employers.index');
