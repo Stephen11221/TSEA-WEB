@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Program; // Import the Program model
+use App\Models\JobPosting;
+use App\Models\Application;
 
 class UserController extends Controller
 {
@@ -12,11 +15,15 @@ class UserController extends Controller
     public function dashboard()
     {
         $user = auth()->user();
-        $passports = []; // TODO: Get user's passports from database
+        $passports = $user->passport; // Assuming a user has one passport
+        $applications = $user->applications()->latest()->take(5)->get(); // Get recent applications
+        $recommendedPrograms = Program::where('is_active', true)->inRandomOrder()->take(3)->get(); // Fetch some recommended programs
         
         return view('user.dashboard', [
             'user' => $user,
-            'passports' => $passports,
+            'passports' => $passports, // Pass the user's passport
+            'applications' => $applications, // Pass recent applications
+            'recommendedPrograms' => $recommendedPrograms, // Pass recommended programs
         ]);
     }
 
@@ -69,8 +76,8 @@ class UserController extends Controller
      */
     public function viewOpportunity($id)
     {
-        // TODO: Get opportunity from database
-        return view('user.opportunities.show', ['opportunity' => null]);
+        $opportunity = JobPosting::with('employer')->findOrFail($id);
+        return view('user.opportunities.show', compact('opportunity'));
     }
 
     /**
@@ -78,8 +85,27 @@ class UserController extends Controller
      */
     public function applyOpportunity(Request $request, $id)
     {
-        // TODO: Store application in database
-        return back()->with('success', 'Application submitted successfully');
+        $validated = $request->validate([
+            'cover_letter' => 'nullable|string|max:2000',
+            'resume_path' => 'required|file|mimes:pdf,doc,docx|max:5120', // Max 5MB
+        ]);
+
+        $user = auth()->user();
+
+        // Handle resume upload
+        $resumePath = $request->file('resume_path')->store('resumes', 'public');
+
+        // Create the application
+        Application::create([
+            'user_id' => $user->id,
+            'job_posting_id' => $id, // Assuming $id is the job_posting_id
+            'cover_letter' => $validated['cover_letter'],
+            'resume_path' => $resumePath,
+            'status' => 'pending',
+            'submitted_at' => now(),
+        ]);
+
+        return redirect()->route('user.opportunities.show', $id)->with('success', 'Application submitted successfully!');
     }
 
     /**

@@ -123,6 +123,85 @@ class AdminController extends Controller
     }
 
     /**
+     * List all job postings
+     */
+    public function jobsIndex()
+    {
+        $jobs = JobPosting::with('employer')->latest()->paginate(15);
+        return view('admin.jobs.index', compact('jobs'));
+    }
+
+    /**
+     * Show create job form
+     */
+    public function createJob()
+    {
+        $employers = User::where('role', 'employer')->get();
+        return view('admin.jobs.create', compact('employers'));
+    }
+
+    /**
+     * Store job posting
+     */
+    public function storeJob(Request $request)
+    {
+        $validated = $request->validate([
+            'employer_id' => 'required|exists:users,id',
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'location' => 'required|string|max:255',
+            'salary_min' => 'nullable|numeric',
+            'salary_max' => 'nullable|numeric',
+            'job_type' => 'required|in:full-time,part-time,contract,internship',
+            'deadline' => 'nullable|date',
+        ]);
+
+        JobPosting::create($validated + ['status' => 'open', 'posted_date' => now()]);
+
+        return redirect()->route('admin.jobs.index')->with('success', 'Job posted successfully');
+    }
+
+    /**
+     * Edit job posting
+     */
+    public function editJob(JobPosting $job)
+    {
+        $employers = User::where('role', 'employer')->get();
+        return view('admin.jobs.edit', compact('job', 'employers'));
+    }
+
+    /**
+     * Update job posting
+     */
+    public function updateJob(Request $request, JobPosting $job)
+    {
+        $validated = $request->validate([
+            'employer_id' => 'required|exists:users,id',
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'location' => 'required|string|max:255',
+            'salary_min' => 'nullable|numeric',
+            'salary_max' => 'nullable|numeric',
+            'job_type' => 'required|in:full-time,part-time,contract,internship',
+            'deadline' => 'nullable|date',
+            'status' => 'required|in:open,closed,filled',
+        ]);
+
+        $job->update($validated);
+
+        return redirect()->route('admin.jobs.index')->with('success', 'Job updated successfully');
+    }
+
+    /**
+     * Delete job posting
+     */
+    public function destroyJob(JobPosting $job)
+    {
+        $job->delete();
+        return redirect()->route('admin.jobs.index')->with('success', 'Job deleted successfully');
+    }
+
+    /**
      * View all created passports
      */
     public function passports()

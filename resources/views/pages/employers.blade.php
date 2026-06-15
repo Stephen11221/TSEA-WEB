@@ -72,7 +72,7 @@
         <div style="margin-bottom: 40px; display: flex; justify-content: space-between; align-items: flex-end;">
             <div>
                 <span class="eyebrow">Talent Discovery</span>
-                <h2 style="font-size: 32px; font-weight: 800;">Browse Verified Candidates</h2>
+                <h2 style="font-size: 32px; font-weight: 800;">Browse Verified Jobs</h2>
             </div>
             <a href="{{ route('register.employer') }}" class="text-link">Register to see all <i class="fas fa-arrow-right"></i></a>
         </div>
@@ -86,20 +86,24 @@
         </form>
 
         <div class="grid three">
-            @foreach ([['John Emoru', 'Full Stack Developer', 84], ['Amina Hassan', 'Data Analyst', 79], ['David Kiplagat', 'Project Manager', 81]] as [$name, $role, $score])
-                <article class="card candidate-card" style="padding: 24px; border-radius: 12px; transition: transform 0.3s ease;">
-                    <div class="profile-row" style="margin-bottom: 15px;">
-                        <span class="avatar" style="background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));"></span>
-                        <div><strong>{{ $name }}</strong><small>{{ $role }}</small></div>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                        <span class="score-pill" style="background: rgba(0, 179, 89, 0.1); color: var(--color-secondary); border: none;">ERI™ {{ $score }}</span>
-                        <span style="font-size: 11px; color: var(--color-text-muted);"><i class="fas fa-shield-alt"></i> ID Verified</span>
-                    </div>
-                    @include('partials.charts', ['type' => 'bars', 'items' => ['Skill Proficiency' => $score, 'Career Readiness' => $score - 5]])
-                    <div style="margin-top: 20px;">
-                        <a href="{{ route('contact') }}" class="btn btn-secondary" style="width: 100%; justify-content: center; font-size: 13px;">Request Introduction</a>
-                    </div>
+            @php
+                $opportunities = \App\Models\JobPosting::where('status', 'open')->latest()->take(3)->get();
+            @endphp
+
+            @foreach ($opportunities as $opportunity)
+                <article class="card" style="padding: 24px; border-radius: 12px; border: 1px solid var(--color-border);">
+                    <h3 class="mb-2" style="font-size: 18px; font-weight: 700;">{{ $opportunity->title }}</h3>
+                <p>Employer: {{ $opportunity->employer->name }}</p>
+                <p>Location: {{ $opportunity->location }}</p>
+                <p>Job Type: {{ ucfirst($opportunity->job_type) }}</p>
+                    @if($opportunity->salary_min && $opportunity->salary_max)
+                        <p>Salary: ${{ number_format($opportunity->salary_min) }} - ${{ number_format($opportunity->salary_max) }}</p>
+                    @endif
+                    <p>Deadline: {{ $opportunity->deadline ? \Carbon\Carbon::parse($opportunity->deadline)->format('M d, Y') : 'N/A' }}</p>
+                
+                    <p style="margin: 15px 0; font-size: 14px; color: var(--color-text-muted);">{{ \Illuminate\Support\Str::limit($opportunity->description, 100) }}</p>
+
+                    <a href="{{ route('user.opportunities.show', $opportunity->id) }}" class="btn btn-primary" style="width: 100%; justify-content: center;">View Details</a>
                 </article>
             @endforeach
         </div>

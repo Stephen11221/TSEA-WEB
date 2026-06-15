@@ -1,50 +1,30 @@
 @extends('layouts.app')
 
-@section('title', 'Edit Profile - TSEA')
-@section('description', 'Edit your profile information')
+@section('title', 'Edit Profile')
 
 @section('content')
-<section class="section">
-    <div class="container">
-        <div class="form-container">
-            <h1>Edit Profile</h1>
-
-            @if ($errors->any())
-                <div class="alert alert-danger">
-                    <ul>
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
-
-            <form action="{{ route('user.profile.update') }}" method="POST">
-                @csrf
-                @method('PUT')
-                
-                <div class="form-group">
-                    <label for="name">Full Name</label>
-                    <input type="text" id="name" name="name" value="{{ old('name', $user->name) }}" required>
-                    @error('name')
-                        <span class="error">{{ $message }}</span>
-                    @enderror
-                </div>
-
-                <div class="form-group">
-                    <label for="email">Email Address</label>
-                    <input type="email" id="email" name="email" value="{{ old('email', $user->email) }}" required>
-                    @error('email')
-                        <span class="error">{{ $message }}</span>
-                    @enderror
-                </div>
-
-                <div class="button-group">
-                    <button type="submit" class="btn btn-primary">Save Changes</button>
-                    <a href="{{ route('user.profile') }}" class="btn btn-secondary">Cancel</a>
-                </div>
-            </form>
-        </div>
+<div class="container py-5">
+    <h1 class="mb-4">Edit Profile</h1>
+    <div class="card">
+        <form action="{{ route('user.profile.update') }}" method="POST">
+            @csrf
+            @method('PUT')
+            <div class="mb-3">
+                <label for="name" class="form-label">Name</label>
+                <input type="text" class="form-control" id="name" name="name" value="{{ old('name', $user->name) }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" class="form-control" id="email" name="email" value="{{ old('email', $user->email) }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="phone" class="form-label">Phone</label>
+                <input type="text" class="form-control" id="phone" name="phone" value="{{ old('phone', $user->phone) }}">
+            </div>
+            {{-- Add more fields as needed --}}
+            <button type="submit" class="btn btn-primary">Update Profile</button>
+            <a href="{{ route('user.profile') }}" class="btn btn-secondary">Cancel</a>
+        </form>
     </div>
-</section>
+</div>
 @endsection

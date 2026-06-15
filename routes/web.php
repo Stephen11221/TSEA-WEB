@@ -52,6 +52,14 @@ Route::middleware(['auth', 'role:user'])->prefix('user')->name('user.')->control
     Route::put('/change-password', 'updatePassword')->name('change-password.update');
 });
 
+// Employer Routes
+Route::middleware(['auth', 'role:employer'])->prefix('employer')->name('employer.')->group(function () {
+    Route::get('/dashboard', function () {
+        return view('employer.dashboard');
+    })->name('dashboard');
+    Route::resource('jobs', \App\Http\Controllers\Employer\JobPostingController::class);
+});
+
 // Admin Routes
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->controller(AdminController::class)->group(function () {
     Route::get('/dashboard', 'dashboard')->name('dashboard');
@@ -76,6 +84,14 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->cont
     Route::put('/employers/{employer}', [EmployerController::class, 'update'])->name('employers.update');
     Route::post('/employers/{employer}/approve', [EmployerController::class, 'approve'])->name('employers.approve');
     Route::delete('/employers/{employer}', [EmployerController::class, 'destroy'])->name('employers.destroy');
+
+    // Job Management
+    Route::get('/jobs', 'jobsIndex')->name('jobs.index');
+    Route::get('/jobs/create', 'createJob')->name('jobs.create');
+    Route::post('/jobs', 'storeJob')->name('jobs.store');
+    Route::get('/jobs/{job}/edit', 'editJob')->name('jobs.edit'); // Corrected route parameter name
+    Route::put('/jobs/{job}', 'updateJob')->name('jobs.update');
+    Route::delete('/jobs/{job}', 'destroyJob')->name('jobs.destroy');
 
     Route::get('/programs', 'programs')->name('programs.index');
 

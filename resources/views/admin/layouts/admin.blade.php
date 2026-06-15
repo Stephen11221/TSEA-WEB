@@ -492,7 +492,7 @@
                         </a>
                     </div>
                     <div class="nav-item">
-                        <a href="#" class="nav-link">
+                        <a href="{{ route('admin.jobs.index') }}" class="nav-link @if(request()->routeIs('admin.jobs.*')) active @endif">
                             <i class="fas fa-briefcase"></i>
                             <span>Job Postings</span>
                         </a>

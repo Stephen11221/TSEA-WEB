@@ -6,11 +6,11 @@
 <div class="page-header">
     <div>
         <h1 class="page-title">Employer Management</h1>
-        <p class="page-subtitle">Manage and approve employer registrations.</p>
+        <p class="page-subtitle">Manage registered employer accounts and approvals.</p>
     </div>
     <div class="btn-group">
         <a href="{{ route('admin.employers.create') }}" class="btn btn-primary">
-            <i class="fas fa-plus"></i> Add New Employer
+            <i class="fas fa-user-plus"></i> Add New Employer
         </a>
     </div>
 </div>
@@ -25,58 +25,63 @@
     <table class="data-table">
         <thead>
             <tr>
-                <th>Company</th>
-                <th>Industry</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
                 <th>Status</th>
-                <th>Verification</th>
+                <th>Joined</th>
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody>
-            @forelse($employers as $employer)
+            @forelse($employers ?? [] as $employer)
                 <tr>
                     <td>
-                        <div style="display: flex; flex-direction: column;">
-                            <strong>{{ $employer->name }}</strong>
-                            <span style="font-size: 12px; color: var(--color-text-muted);">{{ $employer->email }}</span>
-                        </div>
+                        <strong>{{ $employer->name }}</strong>
                     </td>
-                    <td>{{ $employer->employer->industry ?? 'N/A' }}</td>
+                    <td>{{ $employer->email }}</td>
+                    <td>{{ $employer->phone ?? 'N/A' }}</td>
                     <td>
                         <span class="badge {{ $employer->status === 'active' ? 'badge-success' : ($employer->status === 'pending' ? 'badge-warning' : 'badge-danger') }}">
                             {{ ucfirst($employer->status) }}
                         </span>
                     </td>
-                    <td>
-                        <span class="badge {{ $employer->is_verified ? 'badge-info' : 'badge-danger' }}">
-                            {{ $employer->is_verified ? 'Verified' : 'Unverified' }}
-                        </span>
-                    </td>
+                    <td>{{ $employer->created_at->format('M d, Y') }}</td>
                     <td>
                         <div class="btn-group">
                             @if($employer->status === 'pending')
                                 <form action="{{ route('admin.employers.approve', $employer) }}" method="POST" style="display:inline;">
                                     @csrf
-                                    <button type="submit" class="btn btn-primary" style="padding: 6px 12px; font-size: 12px; display: inline-flex; align-items: center; gap: 5px;">
+                                    <button type="submit" class="btn btn-primary" style="padding: 6px 12px; font-size: 12px; background-color: var(--color-secondary); border-color: var(--color-secondary);">
                                         <i class="fas fa-check"></i> Approve
                                     </button>
                                 </form>
                             @endif
-                            <a href="{{ route('admin.employers.edit', $employer) }}" class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px; display: inline-flex; align-items: center; gap: 5px;">
+                            
+                            <a href="{{ route('admin.employers.edit', $employer) }}" class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;">
                                 <i class="fas fa-edit"></i> Edit
                             </a>
+                            <form action="{{ route('admin.employers.destroy', $employer) }}" method="POST" style="display:inline;" onsubmit="return confirm('Delete this employer account?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-danger" style="padding: 6px 12px; font-size: 12px; background-color: #dc3545; border-color: #dc3545; color: white;">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </form>
                         </div>
                     </td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="5" style="text-align: center; padding: 40px; color: var(--color-text-muted);">No employer registrations found.</td>
+                    <td colspan="6" style="text-align: center; padding: 40px; color: var(--color-text-muted);">No employers found.</td>
                 </tr>
             @endforelse
         </tbody>
     </table>
     <div style="padding: 20px;">
-        {{ $employers->links() }}
+        @if(isset($employers))
+            {{ $employers->links() }}
+        @endif
     </div>
 </div>
 @endsection
