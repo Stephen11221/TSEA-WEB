@@ -14,10 +14,8 @@
     <h2 class="mt-4">Description</h2>
     <p>{{ $opportunity->description }}</p>
 
-    <form action="{{ route('user.opportunities.apply', $opportunity->id) }}" method="GET" class="mt-4">
-        @csrf
-        {{-- The route expects a GET for showing the application form, and a POST for submitting it. --}}
-        <button type="submit" class="btn btn-primary">Apply Now</button>
-    </form>
+    <div class="mt-4">
+        <a href="{{ route('user.opportunities.apply.form', $opportunity->id) }}" class="btn btn-primary">Apply for this Position</a>
+    </div>
 </div>
 @endsection

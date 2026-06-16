@@ -45,6 +45,7 @@ Route::middleware(['auth', 'role:user'])->prefix('user')->name('user.')->control
     Route::get('/passports', 'passports')->name('passports');
     Route::get('/opportunities/search', 'searchOpportunities')->name('opportunities.search');
     Route::get('/opportunities/{id}', 'viewOpportunity')->name('opportunities.show');
+    Route::get('/opportunities/{id}/apply', 'showApplyForm')->name('opportunities.apply.form');
     Route::post('/opportunities/{id}/apply', 'applyOpportunity')->name('opportunities.apply');
     Route::get('/notifications', 'notificationsIndex')->name('notifications.index');
     Route::get('/applications', 'applicationsIndex')->name('applications.index');
@@ -58,9 +59,7 @@ Route::middleware(['auth', 'role:user'])->prefix('user')->name('user.')->control
 
 // Employer Routes
 Route::middleware(['auth', 'role:employer'])->prefix('employer')->name('employer.')->group(function () {
-    Route::get('/dashboard', function () {
-        return redirect()->route('employer.jobs.index');
-    })->name('dashboard');
+    Route::get('/dashboard', [\App\Http\Controllers\Employer\JobPostingController::class, 'dashboard'])->name('dashboard');
     Route::resource('jobs', \App\Http\Controllers\Employer\JobPostingController::class);
     
     // View applications for employer's jobs

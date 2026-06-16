@@ -3,45 +3,76 @@
 namespace App\Http\Controllers\Employer;
 
 use App\Http\Controllers\Controller;
-use App\Models\JobPosting;
 use App\Models\Application;
+use App\Models\JobPosting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class JobPostingController extends Controller
 {
+    /**
+     * Display a listing of the employer's job postings.
+     */
+    public function index()
+    {
+        $jobs = JobPosting::where('employer_id', Auth::id())
+            ->withCount('applications')
+            ->latest()
+            ->paginate(10);
+
+        return view('employer.jobs.index', compact('jobs'));
+    }
+
+    /**
+     * Show the employer dashboard with stats and recent applications.
+     */
     public function dashboard()
     {
-        $employerId = auth()->id();
+        $employerId = Auth::id();
+
         $stats = [
             'total_jobs' => JobPosting::where('employer_id', $employerId)->count(),
             'active_jobs' => JobPosting::where('employer_id', $employerId)->where('status', 'open')->count(),
-            'total_applications' => Application::whereHas('job', function($q) use ($employerId) {
-                $q->where('employer_id', $employerId);
+            'total_applications' => Application::whereHas('job', function($query) use ($employerId) {
+                $query->where('employer_id', $employerId);
             })->count(),
-            'pending_applications' => Application::where('status', 'pending')->whereHas('job', function($q) use ($employerId) {
-                $q->where('employer_id', $employerId);
-            })->count(),
+            'pending_applications' => Application::whereHas('job', function($query) use ($employerId) {
+                $query->where('employer_id', $employerId);
+            })->where('status', 'pending')->count(),
         ];
 
-        $recentApplications = Application::whereHas('job', function($q) use ($employerId) {
-            $q->where('employer_id', $employerId);
+        $recentApplications = Application::whereHas('job', function($query) use ($employerId) {
+            $query->where('employer_id', $employerId);
         })->with(['user', 'job'])->latest()->take(5)->get();
 
         return view('employer.dashboard', compact('stats', 'recentApplications'));
     }
 
-    public function index()
+    /**
+     * List all applications for the employer's jobs.
+     */
+    public function applications()
     {
-        $jobs = JobPosting::where('employer_id', auth()->id())->latest()->paginate(10);
-        return view('employer.jobs.index', compact('jobs'));
+        $employerId = Auth::id();
+        
+        $applications = Application::whereHas('job', function($query) use ($employerId) {
+            $query->where('employer_id', $employerId);
+        })->with(['user', 'job'])->latest()->paginate(15);
+
+        return view('employer.applications.index', compact('applications'));
     }
 
+    /**
+     * Show the form for creating a new job posting.
+     */
     public function create()
     {
         return view('employer.jobs.create');
     }
 
+    /**
+     * Store a newly created job posting in storage.
+     */
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -55,24 +86,61 @@ class JobPostingController extends Controller
         ]);
 
         JobPosting::create($validated + [
-            'employer_id' => auth()->id(),
+            'employer_id' => Auth::id(),
             'status' => 'open',
             'posted_date' => now()
         ]);
 
-        return redirect()->route('employer.jobs.index')->with('success', 'Job posted successfully.');
+        return redirect()->route('employer.jobs.index')->with('success', 'Job posting created successfully.');
     }
 
+    /**
+     * Display the specified application details.
+     */
+    public function showApplication(Application $application)
+    {
+        // Security check: Ensure this application belongs to a job posted by this employer
+        if ($application->job->employer_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        // Eager load passport details for the profile view
+        $application->load(['user.passport', 'job']);
+
+        return view('employer.show', compact('application'));
+    }
+
+    /**
+     * Display the specified job posting.
+     */
+    public function show(JobPosting $job)
+    {
+        if ($job->employer_id !== Auth::id()) {
+            abort(403);
+        }
+        return view('employer.jobs.show', compact('job'));
+    }
+
+    /**
+     * Show the form for editing the specified job posting.
+     */
     public function edit(JobPosting $job)
     {
-        if ($job->employer_id !== auth()->id()) abort(403);
+        if ($job->employer_id !== Auth::id()) {
+            abort(403);
+        }
         return view('employer.jobs.edit', compact('job'));
     }
 
+    /**
+     * Update the specified job posting in storage.
+     */
     public function update(Request $request, JobPosting $job)
     {
-        if ($job->employer_id !== auth()->id()) abort(403);
-        
+        if ($job->employer_id !== Auth::id()) {
+            abort(403);
+        }
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
@@ -85,44 +153,43 @@ class JobPostingController extends Controller
         ]);
 
         $job->update($validated);
-        return redirect()->route('employer.jobs.index')->with('success', 'Job updated.');
+
+        return redirect()->route('employer.jobs.index')->with('success', 'Job posting updated successfully.');
     }
 
-    public function applications()
-    {
-        $employerId = auth()->id();
-        $applications = Application::whereHas('job', function($q) use ($employerId) {
-            $q->where('employer_id', $employerId);
-        })->with(['user', 'job'])->latest()->paginate(15);
-
-        return view('employer.applications.index', compact('applications'));
-    }
-
+    /**
+     * Remove the specified job posting from storage.
+     */
     public function destroy(JobPosting $job)
     {
-        if ($job->employer_id !== auth()->id()) {
+        if ($job->employer_id !== Auth::id()) {
             abort(403);
         }
+
         $job->delete();
-        return redirect()->route('employer.jobs.index')->with('success', 'Job deleted successfully');
+
+        return redirect()->route('employer.jobs.index')->with('success', 'Job posting deleted successfully.');
     }
 
-    public function showApplication(Application $application)
-    {
-        // Ensure application belongs to one of this employer's jobs
-        if ($application->job->employer_id !== auth()->id()) abort(403);
-        
-        $application->load(['user.passport', 'job']);
-        return view('employer.applications.show', compact('application'));
-    }
-
+    /**
+     * Update the status of an application (Shortlist, Accept, Reject).
+     */
     public function updateStatus(Request $request, Application $application)
     {
-        if ($application->job->employer_id !== auth()->id()) abort(403);
+        if ($application->job->employer_id !== Auth::id()) {
+            abort(403);
+        }
 
-        $request->validate(['status' => 'required|string']);
-        $application->update(['status' => $request->status]);
+        $validated = $request->validate([
+            'status' => 'required|in:pending,shortlisted,accepted,rejected,closed',
+        ]);
 
-        return back()->with('success', 'Application status updated to ' . $request->status);
+        $application->update([
+            'status' => $validated['status']
+        ]);
+
+        // Optional: Trigger notification to user here
+
+        return back()->with('success', 'Application status updated successfully.');
     }
 }

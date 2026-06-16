@@ -46,7 +46,7 @@
                 <hr class="my-4 opacity-50">
                 
                 <div class="d-grid gap-2">
-                    <a href="{{ asset('storage/' . $application->resume_path) }}" target="_blank" class="btn btn-primary rounded-pill py-2">
+                    <a href="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($application->resume_path) }}" target="_blank" class="btn btn-primary rounded-pill py-2">
                         <i class="fas fa-file-pdf me-2"></i>View Resume (CV)
                     </a>
                     <button type="button" class="btn btn-outline-primary rounded-pill py-2" data-bs-toggle="modal" data-bs-target="#passportModal">

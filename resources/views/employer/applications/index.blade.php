@@ -78,6 +78,8 @@
                         <td>
                             <div class="text-dark">{{ $application->created_at->format('M d, Y') }}</div>
                             <div class="small text-muted">{{ $application->created_at->diffForHumans() }}</div>
+                            <div class="text-dark">{{ \Carbon\Carbon::parse($application->created_at)->format('M d, Y') }}</div>
+                            <div class="small text-muted">{{ \Carbon\Carbon::parse($application->created_at)->diffForHumans() }}</div>
                         </td>
                         <td>
                             @php

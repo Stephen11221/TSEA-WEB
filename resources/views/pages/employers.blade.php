@@ -87,7 +87,7 @@
 
         <div class="grid three">
             @php
-                $opportunities = \App\Models\JobPosting::where('status', 'open')->latest()->take(3)->get();
+                $opportunities = \App\Models\JobPosting::where('status', 'open')->with('employer')->latest()->get();
             @endphp
 
             @foreach ($opportunities as $opportunity)

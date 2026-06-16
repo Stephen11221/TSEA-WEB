@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Program; // Import the Program model
 use App\Models\JobPosting;
 use App\Models\Application;
+use App\Models\Notification;
 
 class UserController extends Controller
 {
@@ -68,9 +69,17 @@ class UserController extends Controller
     public function searchOpportunities(Request $request)
     {
         $query = $request->input('q');
-        $opportunities = []; // TODO: Search opportunities in database
+        $opportunities = JobPosting::where('status', 'open')
+            ->when($query, function ($q) use ($query) {
+                return $q->where('title', 'LIKE', "%{$query}%")
+                    ->orWhere('description', 'LIKE', "%{$query}%")
+                    ->orWhere('location', 'LIKE', "%{$query}%");
+            })
+            ->with('employer')
+            ->latest()
+            ->get();
         
-        return view('user.opportunities.search', ['opportunities' => $opportunities, 'query' => $query]);
+        return view('user.opportunities.search', compact('opportunities', 'query'));
     }
 
     /**
@@ -83,28 +92,45 @@ class UserController extends Controller
     }
 
     /**
+     * Show application form
+     */
+    public function showApplyForm($id)
+    {
+        $opportunity = JobPosting::with('employer')->findOrFail($id);
+        return view('user.opportunities.apply', compact('opportunity'));
+    }
+
+    /**
      * Apply to opportunity
      */
     public function applyOpportunity(Request $request, $id)
     {
         $validated = $request->validate([
-            'cover_letter' => 'nullable|string|max:2000',
-            'resume_path' => 'required|file|mimes:pdf,doc,docx|max:5120', // Max 5MB
+            'cover_letter' => 'required|string|min:50|max:5000',
+            'cv' => 'required|file|mimes:pdf,doc,docx|max:2048', // Max 2MB
         ]);
 
         $user = auth()->user();
 
+        // Check if user already applied
+        $existing = Application::where('user_id', $user->id)
+            ->where('job_posting_id', $id)
+            ->first();
+
+        if ($existing) {
+            return back()->with('error', 'You have already applied for this opportunity.');
+        }
+
         // Handle resume upload
-        $resumePath = $request->file('resume_path')->store('resumes', 'public');
+        $cvPath = $request->file('cv')->store('resumes', 'public');
 
         // Create the application
         Application::create([
             'user_id' => $user->id,
-            'job_posting_id' => $id, // Assuming $id is the job_posting_id
+            'job_posting_id' => $id,
             'cover_letter' => $validated['cover_letter'],
-            'resume_path' => $resumePath,
+            'resume_path' => $cvPath,
             'status' => 'pending',
-            'submitted_at' => now(),
         ]);
 
         return redirect()->route('user.opportunities.show', $id)->with('success', 'Application submitted successfully!');
@@ -174,6 +200,15 @@ class UserController extends Controller
         $user = auth()->user();
         $notifications = $user->notifications()->latest()->paginate(10); // Paginate for large number of notifications
         return view('user.notifications.index', compact('notifications'));
+    }
+
+    /**
+     * Display a listing of the user's applications.
+     */
+    public function applicationsIndex()
+    {
+        $applications = auth()->user()->applications()->with('job')->latest()->paginate(10);
+        return view('user.applications.index', compact('applications'));
     }
 
     /**

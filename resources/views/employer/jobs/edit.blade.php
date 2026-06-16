@@ -78,7 +78,7 @@
 
                         <div class="mb-4">
                             <label for="deadline" class="form-label">Application Deadline (Optional)</label>
-                            <input type="date" name="deadline" id="deadline" class="form-control @error('deadline') is-invalid @enderror" value="{{ old('deadline', $job->deadline ? $job->deadline->format('Y-m-d') : '') }}">
+                            <input type="date" name="deadline" id="deadline" class="form-control @error('deadline') is-invalid @enderror" value="{{ old('deadline', $job->deadline ? \Carbon\Carbon::parse($job->deadline)->format('Y-m-d') : '') }}">
                             @error('deadline')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
