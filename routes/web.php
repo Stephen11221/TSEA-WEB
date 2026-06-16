@@ -1,5 +1,6 @@
 <?php
 use App\Http\Controllers\Admin\AboutController;
+use App\Http\Controllers\Admin\ApplicationController;
 use App\Http\Controllers\Admin\ContactController;
 use App\Http\Controllers\Admin\EriController;
 use App\Http\Controllers\Admin\EmployerController;
@@ -57,7 +58,9 @@ Route::middleware(['auth', 'role:user'])->prefix('user')->name('user.')->control
 
 // Employer Routes
 Route::middleware(['auth', 'role:employer'])->prefix('employer')->name('employer.')->group(function () {
-    Route::get('/dashboard', [\App\Http\Controllers\Employer\JobPostingController::class, 'dashboard'])->name('dashboard');
+    Route::get('/dashboard', function () {
+        return redirect()->route('employer.jobs.index');
+    })->name('dashboard');
     Route::resource('jobs', \App\Http\Controllers\Employer\JobPostingController::class);
     
     // View applications for employer's jobs
@@ -81,7 +84,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->cont
         Route::delete('/users/{user}', 'destroy')->name('users.delete');
     });
     Route::get('/passports', 'passports')->name('passports.index');
-    Route::get('/applications', 'applicationsIndex')->name('applications.index'); // Global application tracker
+    Route::get('/applications', [ApplicationController::class, 'index'])->name('applications.index'); // Global application tracker
 
     // Employer Management
     Route::get('/employers', [EmployerController::class, 'index'])->name('employers.index');
