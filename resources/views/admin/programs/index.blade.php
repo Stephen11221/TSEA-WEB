@@ -13,6 +13,24 @@
     </div>
 </div>
 
+<div class="kpi-grid" style="margin-bottom: 30px;">
+    <div class="kpi-card">
+        <div class="kpi-value">{{ $stats['published'] }}</div>
+        <div class="kpi-label">Live on Website</div>
+        <div style="font-size: 11px; color: var(--color-secondary); margin-top: 5px;"><i class="fas fa-circle"></i> Active & Published</div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-value" style="color: var(--color-gold);">{{ $stats['coming_soon'] }}</div>
+        <div class="kpi-label">Coming Soon</div>
+        <div style="font-size: 11px; color: var(--color-text-muted); margin-top: 5px;"><i class="fas fa-clock"></i> Future Scheduled</div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-value" style="color: #dc3545;">{{ $stats['unavailable'] }}</div>
+        <div class="kpi-label">Hidden / Disabled</div>
+        <div style="font-size: 11px; color: var(--color-text-muted); margin-top: 5px;"><i class="fas fa-eye-slash"></i> Not visible to public</div>
+    </div>
+</div>
+
 <div class="card" style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
     <form action="{{ route('admin.programs.bulk') }}" method="POST" id="bulkActionForm">
         @csrf

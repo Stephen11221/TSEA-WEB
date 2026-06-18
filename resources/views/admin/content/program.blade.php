@@ -103,9 +103,10 @@
     </div>
 </div>
 
-<h2 style="font-size: 20px; font-weight: 700; margin-bottom: 20px;">Active Programs</h2>
+<h2 style="font-size: 20px; font-weight: 700; margin: 40px 0 20px; color: var(--color-primary); border-left: 4px solid var(--color-secondary); padding-left: 15px;">Published Programs</h2>
+<p style="color: var(--color-text-muted); margin-bottom: 20px; margin-top: -15px;">These programs are currently visible in the "Available" section of the website.</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
-    @foreach($programs as $program)
+    @foreach($publishedPrograms as $program)
         <div class="card" style="padding: 0; overflow: hidden; display: flex; flex-direction: column;">
             @if($program->image)
                 <div style="height: 160px; overflow: hidden;">
@@ -146,4 +147,31 @@
         </div>
     @endforeach
 </div>
+
+@if($hiddenPrograms->isNotEmpty())
+<h2 style="font-size: 20px; font-weight: 700; margin: 50px 0 20px; color: var(--color-text-muted); border-left: 4px solid #ccc; padding-left: 15px;">Drafts & Hidden Programs</h2>
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; opacity: 0.8;">
+    @foreach($hiddenPrograms as $program)
+        <div class="card" style="padding: 0; overflow: hidden; display: flex; flex-direction: column; border-style: dashed;">
+            <div style="padding: 20px; flex-grow: 1;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                    <h3 style="font-size: 18px; font-weight: 700; color: var(--color-text);">{{ $program->title }}</h3>
+                    <span class="badge badge-warning">{{ strtoupper($program->status) }}</span>
+                </div>
+                <p style="font-size: 14px; color: var(--color-text-muted); line-height: 1.5; margin-bottom: 15px;">
+                    {{ Str::limit($program->description, 80) }}
+                </p>
+                <div style="margin-top: auto; display: flex; justify-content: flex-end; gap: 5px;">
+                    <a href="{{ route('admin.content.program.edit-single', $program) }}" class="btn btn-secondary" style="padding: 5px 10px; font-size: 12px;">
+                        <i class="fas fa-edit"></i> Edit Content
+                    </a>
+                    <a href="{{ route('admin.programs.index') }}" class="btn btn-primary" style="padding: 5px 10px; font-size: 12px;">
+                        <i class="fas fa-toggle-on"></i> Change Status
+                    </a>
+                </div>
+            </div>
+        </div>
+    @endforeach
+</div>
+@endif
 @endsection

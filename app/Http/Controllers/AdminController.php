@@ -241,8 +241,25 @@ class AdminController extends Controller
      */
     public function programs()
     {
+        $allPrograms = Program::all();
+        
+        $stats = [
+            'total' => $allPrograms->count(),
+            'published' => $allPrograms->filter(function($p) {
+                $isFuture = $p->scheduled_activation_at && $p->scheduled_activation_at->isFuture();
+                $isExpired = $p->scheduled_deactivation_at && $p->scheduled_deactivation_at->isPast();
+                return in_array($p->status, ['active', 'published']) && !$isFuture && !$isExpired;
+            })->count(),
+            'coming_soon' => $allPrograms->filter(function($p) {
+                return $p->status === 'unpublished' || (in_array($p->status, ['active', 'published']) && $p->scheduled_activation_at && $p->scheduled_activation_at->isFuture());
+            })->count(),
+            'unavailable' => $allPrograms->filter(function($p) {
+                return in_array($p->status, ['inactive', 'archived', 'disabled']) || ($p->scheduled_deactivation_at && $p->scheduled_deactivation_at->isPast());
+            })->count(),
+        ];
+
         $programs = Program::latest()->paginate(15);
-        return view('admin.programs.index', ['programs' => $programs]);
+        return view('admin.programs.index', compact('programs', 'stats'));
     }
 
     /**

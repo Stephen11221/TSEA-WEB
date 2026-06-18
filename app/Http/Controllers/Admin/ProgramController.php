@@ -118,9 +118,13 @@ public function store(Request $request)
                 'hero_description' => 'Discover readiness, digital skills, leadership and entrepreneurship programs aligned to market demand.',
             ]
         );
-        $programs = Program::latest()->get();
 
-        return view('admin.content.program', compact('page', 'programs'));
+        $allPrograms = Program::latest()->get();
+        
+        $publishedPrograms = $allPrograms->filter(fn($p) => in_array($p->status, ['active', 'published']));
+        $hiddenPrograms = $allPrograms->filter(fn($p) => !in_array($p->status, ['active', 'published']));
+
+        return view('admin.content.program', compact('page', 'publishedPrograms', 'hiddenPrograms'));
     }
 
 
