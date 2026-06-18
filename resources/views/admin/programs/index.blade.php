@@ -13,21 +13,30 @@
     </div>
 </div>
 
-<div class="kpi-grid" style="margin-bottom: 30px;">
-    <div class="kpi-card">
-        <div class="kpi-value">{{ $stats['published'] }}</div>
-        <div class="kpi-label">Live on Website</div>
-        <div style="font-size: 11px; color: var(--color-secondary); margin-top: 5px;"><i class="fas fa-circle"></i> Active & Published</div>
+<div style="display: grid; grid-template-columns: 1fr 300px; gap: 20px; margin-bottom: 30px; align-items: stretch;">
+    <div class="kpi-grid" style="margin-bottom: 0;">
+        <div class="kpi-card">
+            <div class="kpi-value">{{ $stats['published'] }}</div>
+            <div class="kpi-label">Live on Website</div>
+            <div style="font-size: 11px; color: var(--color-secondary); margin-top: 5px;"><i class="fas fa-circle"></i> Active & Published</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-value" style="color: var(--color-gold);">{{ $stats['coming_soon'] }}</div>
+            <div class="kpi-label">Coming Soon</div>
+            <div style="font-size: 11px; color: var(--color-text-muted); margin-top: 5px;"><i class="fas fa-clock"></i> Future Scheduled</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-value" style="color: #dc3545;">{{ $stats['unavailable'] }}</div>
+            <div class="kpi-label">Hidden / Disabled</div>
+            <div style="font-size: 11px; color: var(--color-text-muted); margin-top: 5px;"><i class="fas fa-eye-slash"></i> Not visible to public</div>
+        </div>
     </div>
-    <div class="kpi-card">
-        <div class="kpi-value" style="color: var(--color-gold);">{{ $stats['coming_soon'] }}</div>
-        <div class="kpi-label">Coming Soon</div>
-        <div style="font-size: 11px; color: var(--color-text-muted); margin-top: 5px;"><i class="fas fa-clock"></i> Future Scheduled</div>
-    </div>
-    <div class="kpi-card">
-        <div class="kpi-value" style="color: #dc3545;">{{ $stats['unavailable'] }}</div>
-        <div class="kpi-label">Hidden / Disabled</div>
-        <div style="font-size: 11px; color: var(--color-text-muted); margin-top: 5px;"><i class="fas fa-eye-slash"></i> Not visible to public</div>
+
+    <div class="card" style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: center; justify-content: center;">
+        <h3 style="font-size: 13px; font-weight: 700; color: var(--color-primary); margin-bottom: 15px; text-align: center;">Visibility Breakdown</h3>
+        <div style="width: 100%; height: 160px;">
+            <canvas id="programVisibilityChart"></canvas>
+        </div>
     </div>
 </div>
 
@@ -185,5 +194,34 @@
     function closeStatusModal() {
         document.getElementById('statusModal').style.display = 'none';
     }
+
+    // Program Visibility Pie Chart
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('programVisibilityChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['Published', 'Coming Soon', 'Unavailable'],
+                datasets: [{
+                    data: [{{ $stats['published'] }}, {{ $stats['coming_soon'] }}, {{ $stats['unavailable'] }}],
+                    backgroundColor: ['#0B1D33', '#C5A059', '#dc3545'],
+                    borderWidth: 0,
+                    hoverOffset: 10
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#0B1D33',
+                        padding: 10,
+                        displayColors: false
+                    }
+                }
+            }
+        });
+    });
 </script>
 @endsection

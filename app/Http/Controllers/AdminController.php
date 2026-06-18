@@ -49,6 +49,24 @@ class AdminController extends Controller
             'Sep' => 74, 'Oct' => 79, 'Nov' => 85, 'Dec' => 90
         ];
         
+        // Program visibility stats for visualization
+        $allPrograms = Program::all();
+        $programStats = [
+            'published' => $allPrograms->filter(function($p) {
+                $isFuture = $p->scheduled_activation_at && $p->scheduled_activation_at->isFuture();
+                $isExpired = $p->scheduled_deactivation_at && $p->scheduled_deactivation_at->isPast();
+                return in_array($p->status, ['active', 'published']) && !$isFuture && !$isExpired;
+            })->count(),
+            'coming_soon' => $allPrograms->filter(function($p) {
+                $isFuture = $p->scheduled_activation_at && $p->scheduled_activation_at->isFuture();
+                return $p->status === 'unpublished' || (in_array($p->status, ['active', 'published']) && $isFuture);
+            })->count(),
+            'unavailable' => $allPrograms->filter(function($p) {
+                $isExpired = $p->scheduled_deactivation_at && $p->scheduled_deactivation_at->isPast();
+                return in_array($p->status, ['inactive', 'archived', 'disabled']) || $isExpired;
+            })->count(),
+        ];
+
         return view('admin.dashboard.index', [
             'totalUsers' => $totalUsers,
             'activeUsers' => $activeUsers,
@@ -65,6 +83,7 @@ class AdminController extends Controller
             'totalRevenue' => $totalRevenue,
             'recentActivities' => $recentActivities,
             'monthlyStats' => $monthlyStats,
+            'programStats' => $programStats,
         ]);
     }
 
