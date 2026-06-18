@@ -172,11 +172,11 @@ php artisan make:seeder AdminSeeder
 ## Styling & Customization
 
 ### Colors
-Located in `resources/views/admin/layouts/admin.blade.php`:
+Located in `resources/views/admin/layouts/admin.blade.php`: {{-- No change --}}
 ```css
 :root {
-    --color-primary: #0066CC;        /* Main brand color */
-    --color-secondary: #00B359;      /* Success/Secondary */
+    --color-primary: #0B1D33;        /* Primary Corporate Navy */
+    --color-secondary: #009444;      /* Success / Growth Green */
     --color-accent: #FF6B35;         /* Highlight/Warning */
     --color-dark: #1a1a1a;           /* Dark mode background */
     --color-light: #F8F9FA;          /* Light background */

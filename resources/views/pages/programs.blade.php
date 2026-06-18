@@ -20,13 +20,22 @@
     }
 
     .program-image i {
-        font-size: 3rem;
-        color: var(--color-primary, #0F4C81);
+        font-size: 3rem; /* No change */
+        color: var(--color-primary, #0B1D33); /* Primary Corporate Navy fallback */
     }
 
     .program-card .btn {
         margin-top: auto;
         align-self: flex-start;
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--color-primary);
+        margin: 3rem 0 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid var(--color-border);
     }
 </style>
 <section class="page-hero centered"><div class="container"><span class="eyebrow">{{ $page->hero_label }}</span><h1>{{ $page->hero_title }}</h1><p>{{ $page->hero_description }}</p></div></section>
@@ -47,58 +56,38 @@
             </select>
             <button type="submit" class="btn btn-primary btn-sm">Search</button>
         </form>
+
+        {{-- Available Programs --}}
+        <h2 class="section-title">Available Programs</h2>
         <div class="grid three">
-            @foreach ($programs as $program)
-                <article class="card program-card">
-                    <div class="program-image">
-                        @if(!empty($program->image))
-                            <img src="{{ asset('storage/' . $program->image) }}" alt="{{ $program->title }}" style="width: 100%; height: 100%; object-fit: cover;">
-                        @else
-                            <i class="fas {{ $program->icon ?? 'fa-graduation-cap' }}" aria-hidden="true"></i>
-                        @endif
-                    </div>
-                    <h2>{{ $program->title }}</h2>
-                    <div class="description-container">
-                        <p class="description-short">{{ \Illuminate\Support\Str::words($program->description, 12) }}</p>
-                        <p class="description-full" style="display: none;">{{ $program->description }}</p>
-                    </div>
-                    @if(strlen($program->description) > strlen(\Illuminate\Support\Str::words($program->description, 12)))
-                        <button class="btn btn-primary read-more-toggle">Read More</button>
-                    @endif
-                </article>
-            @endforeach
+            @forelse ($available as $program)
+                @include('partials.program-card', ['program' => $program, 'type' => 'available'])
+            @empty
+                <p style="grid-column: span 3; text-align: center; color: var(--color-text-muted); padding: 2rem;">No programs are currently available for enrollment.</p>
+            @endforelse
         </div>
+
+        {{-- Coming Soon Programs --}}
+        @if($comingSoon->isNotEmpty())
+            <h2 class="section-title" style="color: var(--color-gold);">Coming Soon</h2>
+            <div class="grid three">
+                @foreach ($comingSoon as $program)
+                    @include('partials.program-card', ['program' => $program, 'type' => 'coming_soon'])
+                @endforeach
+            </div>
+        @endif
+
+        {{-- Not Available Programs --}}
+        @if($notAvailable->isNotEmpty())
+            <h2 class="section-title" style="color: var(--color-text-muted);">Currently Not Available</h2>
+            <div class="grid three" style="opacity: 0.7;">
+                @foreach ($notAvailable as $program)
+                    @include('partials.program-card', ['program' => $program, 'type' => 'unavailable'])
+                @endforeach
+            </div>
+        @endif
     </div>
 </section>
-
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const buttons = document.querySelectorAll('.read-more-toggle');
-
-    buttons.forEach(button => {
-        button.addEventListener('click', function() {
-            const currentCard = this.closest('.program-card');
-            const shortText = currentCard.querySelector('.description-short');
-            const fullText = currentCard.querySelector('.description-full');
-            const isCurrentlyExpanded = fullText.style.display === 'block';
-
-            // Collapse any other expanded cards before expanding this one
-            if (!isCurrentlyExpanded) {
-                buttons.forEach(otherButton => {
-                    const otherCard = otherButton.closest('.program-card');
-                    if (otherCard !== currentCard) {
-                        otherCard.querySelector('.description-full').style.display = 'none';
-                        otherCard.querySelector('.description-short').style.display = 'block';
-                        otherButton.textContent = 'Read More';
-                    }
-                });
-            }
-
-            fullText.style.display = isCurrentlyExpanded ? 'none' : 'block';
-            shortText.style.display = isCurrentlyExpanded ? 'block' : 'none';
-            this.textContent = isCurrentlyExpanded ? 'Read More' : 'Read Less';
-        });
-    });
-});
 </script>
 @endsection

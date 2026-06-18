@@ -51,6 +51,7 @@ Route::middleware(['auth', 'role:user'])->prefix('user')->name('user.')->control
     Route::get('/applications', 'applicationsIndex')->name('applications.index');
     Route::post('/notifications/{notification}/read', 'markNotificationAsRead')->name('notifications.markAsRead');
     Route::get('/profile', 'profile')->name('profile');
+    Route::get('/enrollment/{id}', 'showEnrollment')->name('enrollment.show');
     Route::get('/profile/edit', 'editProfile')->name('profile.edit');
     Route::put('/profile', 'updateProfile')->name('profile.update');
     Route::get('/change-password', 'changePassword')->name('change-password');
@@ -66,6 +67,13 @@ Route::middleware(['auth', 'role:employer'])->prefix('employer')->name('employer
     Route::get('/applications', [\App\Http\Controllers\Employer\JobPostingController::class, 'applications'])->name('applications.index');
     Route::get('/applications/{application}', [\App\Http\Controllers\Employer\JobPostingController::class, 'showApplication'])->name('applications.show');
     Route::put('/applications/{application}/status', [\App\Http\Controllers\Employer\JobPostingController::class, 'updateStatus'])->name('applications.updateStatus');
+
+    // Profile & Password routes for employer
+    Route::get('/profile', [\App\Http\Controllers\Employer\JobPostingController::class, 'profile'])->name('profile');
+    Route::get('/profile/edit', [\App\Http\Controllers\Employer\JobPostingController::class, 'editProfile'])->name('profile.edit');
+    Route::put('/profile', [\App\Http\Controllers\Employer\JobPostingController::class, 'updateProfile'])->name('profile.update');
+    Route::get('/change-password', [\App\Http\Controllers\Employer\JobPostingController::class, 'changePassword'])->name('change-password');
+    Route::put('/change-password', [\App\Http\Controllers\Employer\JobPostingController::class, 'updatePassword'])->name('change-password.update');
 });
 
 // Admin Routes
@@ -82,6 +90,14 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->cont
         Route::put('/users/{user}', 'update')->name('users.update');
         Route::delete('/users/{user}', 'destroy')->name('users.delete');
     });
+    
+    // Admin Personal Profile
+    Route::get('/profile', 'profile')->name('profile');
+    Route::get('/profile/edit', 'editProfile')->name('profile.edit');
+    Route::put('/profile', 'updateProfile')->name('profile.update');
+    Route::get('/change-password', 'changePassword')->name('change-password');
+    Route::put('/change-password', 'updatePassword')->name('change-password.update');
+
     Route::get('/passports', 'passports')->name('passports.index');
     Route::get('/applications', [ApplicationController::class, 'index'])->name('applications.index'); // Global application tracker
 
@@ -103,6 +119,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->cont
     Route::delete('/jobs/{job}', 'destroyJob')->name('jobs.destroy');
 
     Route::get('/programs', 'programs')->name('programs.index');
+    Route::post('/programs/bulk', [AdminController::class, 'bulkProgramStatus'])->name('programs.bulk');
+    Route::post('/programs/{id}/status', [AdminController::class, 'updateProgramStatus'])->name('programs.status.update');
 
     // Content Management
     Route::get('/content/eri', [EriController::class, 'edit'])->name('content.eri');

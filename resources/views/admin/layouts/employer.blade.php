@@ -9,9 +9,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --primary-blue: #1e40af;
-            --brand-blue: #3b82f6;
-            --light-blue: #eff6ff;
+            --primary-blue: #0B1D33;
+            --brand-blue: #007BFF;
+            --light-blue: #FFFFFF;
             --card-radius: 16px;
             --sidebar-width: 280px;
             --form-radius: 12px;
@@ -51,11 +51,11 @@
         }
 
         .nav-item i { width: 20px; margin-right: 12px; font-size: 1.1rem; }
-        .nav-item:hover, .nav-item.active { background-color: rgba(255,255,255,0.1); color: white; }
+        .nav-item:hover, .nav-item.active { background-color: var(--brand-blue); color: white; }
         .nav-divider { height: 1px; background: rgba(255,255,255,0.1); margin: 1.5rem 0; }
 
         .main-content { flex: 1; background-color: var(--light-blue); overflow-x: hidden; display: flex; flex-direction: column; }
-        .content-header { background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+        .content-header { background: var(--primary-blue); box-shadow: 0 2px 4px rgba(0,0,0,0.1); padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; color: white; border-bottom: 1px solid rgba(255,255,255,0.1); }
 
         @media (max-width: 991.98px) {
             .sidebar { position: fixed; left: calc(-1 * var(--sidebar-width)); }
@@ -88,6 +88,9 @@
         .form-control:focus, .form-select:focus { border-color: var(--brand-blue); box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1); }
         .btn-primary { background: linear-gradient(135deg, var(--primary-blue) 0%, var(--brand-blue) 100%); border: none; }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(30, 64, 175, 0.3); }
+
+        .transition-all { transition: all 0.3s ease; }
+        .hover-opacity-100:hover { opacity: 1 !important; }
     </style>
 </head>
 <body>
@@ -121,18 +124,73 @@
         </aside>
         <div class="main-content">
             <header class="content-header">
-                <button class="btn btn-light d-lg-none" id="sidebarToggle">
+                <button class="btn btn-outline-light d-lg-none" id="sidebarToggle">
                     <i class="fas fa-bars"></i>
                 </button>
-                <h5 class="mb-0 fw-bold d-none d-md-block text-primary">TSEA Workspace</h5>
+                <h5 class="mb-0 fw-bold d-none d-md-block text-white">TSEA Workspace</h5>
                 <div class="header-profile">
-                    <span class="me-2 d-none d-sm-inline">{{ auth()->user()->name }}</span>
-                    <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=eff6ff&color=1e40af" alt="Profile" class="rounded-circle shadow-sm" width="35">
+                    <span class="me-2 d-none d-sm-inline text-white">{{ auth()->user()->name }}</span>
+                    <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=0033a0&color=ffffff" alt="Profile" class="rounded-circle shadow-sm border border-white border-2" width="35">
                 </div>
             </header>
             <main class="py-4 px-3 px-md-4">
                 @yield('content')
             </main>
+            <footer class="mt-auto py-5 text-white" style="background-color: var(--primary-blue); border-top: 1px solid rgba(255,255,255,0.1);">
+                <div class="container-fluid px-4">
+                    <div class="row gy-4">
+                        <div class="col-lg-4 col-md-6">
+                            <div class="d-flex align-items-center mb-3">
+                                <i class="fas fa-graduation-cap fa-2x me-2"></i>
+                                <h4 class="brand-text mb-0">TSEA WORKFORCE</h4>
+                            </div>
+                            <p class="small opacity-75 mb-4">Building a professional ecosystem for growth, education, and employment. Empowering the workforce of tomorrow.</p>
+                            <div class="d-flex gap-3">
+                                <a href="#" class="text-white opacity-75 hover-opacity-100 transition-all"><i class="fab fa-linkedin-in fa-lg"></i></a>
+                                <a href="#" class="text-white opacity-75 hover-opacity-100 transition-all"><i class="fab fa-twitter fa-lg"></i></a>
+                                <a href="#" class="text-white opacity-75 hover-opacity-100 transition-all"><i class="fab fa-facebook-f fa-lg"></i></a>
+                                <a href="#" class="text-white opacity-75 hover-opacity-100 transition-all"><i class="fab fa-instagram fa-lg"></i></a>
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-md-6">
+                            <h6 class="fw-bold mb-4">Platform</h6>
+                            <ul class="list-unstyled small opacity-75">
+                                <li class="mb-2"><a href="{{ route('employer.jobs.index') }}" class="text-white text-decoration-none">Browse Jobs</a></li>
+                                <li class="mb-2"><a href="#" class="text-white text-decoration-none">Training Courses</a></li>
+                                <li class="mb-2"><a href="#" class="text-white text-decoration-none">ERI Programs</a></li>
+                            </ul>
+                        </div>
+                        <div class="col-lg-2 col-md-6">
+                            <h6 class="fw-bold mb-4">Resources</h6>
+                            <ul class="list-unstyled small opacity-75">
+                                <li class="mb-2"><a href="#" class="text-white text-decoration-none">Employer Guide</a></li>
+                                <li class="mb-2"><a href="#" class="text-white text-decoration-none">Candidate Tips</a></li>
+                                <li class="mb-2"><a href="#" class="text-white text-decoration-none">Support Center</a></li>
+                            </ul>
+                        </div>
+                        <div class="col-lg-4 col-md-6">
+                            <h6 class="fw-bold mb-4">Join our Newsletter</h6>
+                            <p class="small opacity-75 mb-3">Stay updated with the latest job opportunities and news.</p>
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control bg-transparent border-white border-opacity-25 text-white" placeholder="Email address" aria-label="Email address">
+                                <button class="btn btn-outline-light" type="button">Subscribe</button>
+                            </div>
+                        </div>
+                    </div>
+                    <hr class="my-5 opacity-25">
+                    <div class="row align-items-center">
+                        <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                            <span class="small opacity-50">&copy; {{ date('Y') }} TSEA Workspace. All rights reserved.</span>
+                        </div>
+                        <div class="col-md-6 text-center text-md-end">
+                            <ul class="list-inline mb-0 small opacity-50">
+                                <li class="list-inline-item me-4"><a href="#" class="text-white text-decoration-none">Privacy Policy</a></li>
+                                <li class="list-inline-item"><a href="#" class="text-white text-decoration-none">Terms of Service</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </footer>
         </div>
     </div>
 

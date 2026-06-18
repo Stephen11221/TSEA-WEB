@@ -42,11 +42,28 @@ class ProgramController extends Controller
             $query->where('level', $request->level);
         }
 
-        $programs = $query->latest()->get();
+        $allPrograms = $query->latest()->get();
+
+        // Categorize programs
+        $available = $allPrograms->filter(function($p) {
+            $isFuture = $p->scheduled_activation_at && $p->scheduled_activation_at->isFuture();
+            $isExpired = $p->scheduled_deactivation_at && $p->scheduled_deactivation_at->isPast();
+            return in_array($p->status, ['active', 'published']) && !$isFuture && !$isExpired;
+        });
+
+        $comingSoon = $allPrograms->filter(function($p) {
+            $isFuture = $p->scheduled_activation_at && $p->scheduled_activation_at->isFuture();
+            return $p->status === 'unpublished' || (in_array($p->status, ['active', 'published']) && $isFuture);
+        });
+
+        $notAvailable = $allPrograms->filter(function($p) {
+            $isExpired = $p->scheduled_deactivation_at && $p->scheduled_deactivation_at->isPast();
+            return in_array($p->status, ['inactive', 'archived', 'disabled']) || $isExpired;
+        });
 
         $hasFilters = $request->filled('search') || $request->filled('category') || $request->filled('level');
 
-        if ($programs->isEmpty() && !$hasFilters) {
+        if ($allPrograms->isEmpty() && !$hasFilters) {
             $programs = collect([
                 ['title' => 'Career Readiness', 'description' => 'Build interview confidence, CV quality and workplace behaviours.', 'icon' => 'fa-user-tie'],
                 ['title' => 'Digital Skills', 'description' => 'Gain practical tools for modern work and AI-enabled productivity.', 'icon' => 'fa-laptop-code'],
@@ -54,10 +71,11 @@ class ProgramController extends Controller
                 ['title' => 'Leadership', 'description' => 'Prepare for team contribution and professional growth.', 'icon' => 'fa-chess-king'],
                 ['title' => 'Entrepreneurship', 'description' => 'Validate ideas, business models and market pathways.', 'icon' => 'fa-rocket'],
                 ['title' => 'Executive Programs', 'description' => 'Institution and employer workforce transformation tracks.', 'icon' => 'fa-chart-pie'],
-            ])->map(fn ($program) => (object) $program);
+            ])->map(fn ($program) => (object) array_merge($program, ['status' => 'active', 'id' => 0]));
+            $available = $programs;
         }
 
-        return view('pages.programs', compact('page', 'programs'));
+        return view('pages.programs', compact('page', 'available', 'comingSoon', 'notAvailable'));
     }
 
     /**

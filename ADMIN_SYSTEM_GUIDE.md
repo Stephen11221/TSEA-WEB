@@ -88,8 +88,8 @@ class AdminSeeder extends Seeder
         $admin = Role::create([
             'name' => 'admin',
             'display_name' => 'Administrator',
-            'description' => 'Standard admin access',
-            'color' => '#0066CC',
+            'description' => 'Standard admin access', {{-- No change --}}
+            'color' => '#0B1D33', /* Primary Corporate Navy */
             'priority' => 50,
             'is_system' => true,
         ]);
@@ -97,8 +97,8 @@ class AdminSeeder extends Seeder
         $employer = Role::create([
             'name' => 'employer_manager',
             'display_name' => 'Employer Manager',
-            'description' => 'Manage employers and jobs',
-            'color' => '#00B359',
+            'description' => 'Manage employers and jobs', {{-- No change --}}
+            'color' => '#009444', /* Success / Growth Green */
             'priority' => 30,
         ]);
 
@@ -272,8 +272,8 @@ Notification::create([
 ## TSEA Brand Colors
 - Primary Blue: `#0066CC`
 - Secondary Green: `#00B359`
-- Accent Orange: `#FF6B35`
-- Light Background: `#F8F9FA`
+- Accent Orange: `#FF6B35` {{-- No change, as no orange was provided in the new palette --}}
+- Light Background: `#F8F9FA` {{-- No change, as this is a general light background, not a specific brand color --}}
 - Dark Mode: `#1a1a1a`
 
 ## File Structure

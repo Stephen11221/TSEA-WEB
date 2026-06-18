@@ -204,10 +204,36 @@ class AdminController extends Controller
     /**
      * View all created passports
      */
-    public function passports()
+    public function passportsIndex()
     {
-        // TODO: Implement when Passport model is created
-        return view('admin.passports.index');
+        $passports = \App\Models\UserPassport::with('user')->latest()->paginate(15);
+        return view('admin.passports.index', compact('passports'));
+    }
+
+    /**
+     * Verify/Approve a Workforce Passport
+     */
+    public function verifyPassport(Request $request, $id)
+    {
+        $passport = \App\Models\UserPassport::findOrFail($id);
+        $passport->update([
+            'status' => 'verified',
+            'verified_at' => now(),
+            'verified_by' => auth()->id()
+        ]);
+
+        return back()->with('success', 'Workforce Passport verified successfully.');
+    }
+
+    /**
+     * Assessments & Analytics Report
+     */
+    public function reports()
+    {
+        $applicationStats = Application::select('status', \DB::raw('count(*) as total'))
+            ->groupBy('status')->get();
+            
+        return view('admin.reports.index', compact('applicationStats'));
     }
 
     /**
@@ -215,8 +241,75 @@ class AdminController extends Controller
      */
     public function programs()
     {
-        $programs = Program::paginate(15);
+        $programs = Program::latest()->paginate(15);
         return view('admin.programs.index', ['programs' => $programs]);
+    }
+
+    /**
+     * Update program status and scheduling
+     */
+    public function updateProgramStatus(Request $request, $id)
+    {
+        $program = Program::findOrFail($id);
+        $oldStatus = $program->status;
+
+        $validated = $request->validate([
+            'status' => 'required|in:active,inactive,published,unpublished,archived,disabled',
+            'scheduled_activation_at' => 'nullable|date',
+            'scheduled_deactivation_at' => 'nullable|date|after_or_equal:scheduled_activation_at',
+        ]);
+
+        $program->update($validated);
+
+        // Maintain Audit Log
+        \App\Models\AuditLog::create([
+            'user_id' => auth()->id(),
+            'action' => 'status_update',
+            'model' => 'Program',
+            'model_id' => $program->id,
+            'old_values' => json_encode(['status' => $oldStatus]),
+            'new_values' => json_encode($validated),
+        ]);
+
+        return back()->with('success', "Program '{$program->title}' status updated to {$request->status}.");
+    }
+
+    /**
+     * Bulk status update for programs
+     */
+    public function bulkProgramStatus(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:programs,id',
+            'action' => 'required|in:activate,deactivate,archive,delete'
+        ]);
+
+        $statusMap = [
+            'activate' => 'active',
+            'deactivate' => 'disabled',
+            'archive' => 'archived'
+        ];
+
+        if ($request->action === 'delete') {
+            Program::whereIn('id', $request->ids)->delete();
+            $message = "Selected programs deleted successfully.";
+        } else {
+            $newStatus = $statusMap[$request->action];
+            Program::whereIn('id', $request->ids)->update(['status' => $newStatus]);
+            $message = "Selected programs updated to {$newStatus}.";
+        }
+
+        // Log bulk action
+        \App\Models\AuditLog::create([
+            'user_id' => auth()->id(),
+            'action' => 'bulk_status_update',
+            'model' => 'Program',
+            'model_id' => 0,
+            'new_values' => json_encode(['action' => $request->action, 'affected_ids' => $request->ids]),
+        ]);
+
+        return back()->with('success', $message);
     }
 
     /**
@@ -261,6 +354,44 @@ class AdminController extends Controller
         // TODO: Save page content to database or file
         
         return redirect()->route('admin.dashboard')->with('success', 'Page updated successfully');
+    }
+
+    /**
+     * Show admin profile
+     */
+    public function profile()
+    {
+        return view('admin.profile.show', ['user' => auth()->user()]);
+    }
+
+    /**
+     * Edit admin profile
+     */
+    public function editProfile()
+    {
+        return view('profile.edit', ['user' => auth()->user()]);
+    }
+
+    /**
+     * Update admin profile
+     */
+    public function updateProfile(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . auth()->id(),
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        $user = auth()->user();
+        $user->update($validated);
+
+        if ($request->hasFile('avatar')) {
+            $path = $request->file('avatar')->store('avatars', 'public');
+            $user->update(['avatar' => $path]);
+        }
+
+        return redirect()->route('admin.profile')->with('success', 'Profile updated successfully');
     }
 
     /**

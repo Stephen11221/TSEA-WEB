@@ -7,6 +7,7 @@ use App\Models\Application;
 use App\Models\JobPosting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class JobPostingController extends Controller
 {
@@ -191,5 +192,68 @@ class JobPostingController extends Controller
         // Optional: Trigger notification to user here
 
         return back()->with('success', 'Application status updated successfully.');
+    }
+
+    /**
+     * Show employer profile
+     */
+    public function profile()
+    {
+        return view('employer.profile.show', ['user' => auth()->user()]);
+    }
+
+    /**
+     * Edit employer profile
+     */
+    public function editProfile()
+    {
+        return view('profile.edit', ['user' => auth()->user()]);
+    }
+
+    /**
+     * Update employer profile
+     */
+    public function updateProfile(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . auth()->id(),
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        $user = auth()->user();
+        $user->update($validated);
+
+        if ($request->hasFile('avatar')) {
+            $path = $request->file('avatar')->store('avatars', 'public');
+            $user->update(['avatar' => $path]);
+        }
+
+        return redirect()->route('employer.profile')->with('success', 'Profile updated successfully');
+    }
+
+    /**
+     * Change password form
+     */
+    public function changePassword()
+    {
+        return view('employer.change-password');
+    }
+
+    /**
+     * Update password
+     */
+    public function updatePassword(Request $request)
+    {
+        $validated = $request->validate([
+            'current_password' => 'required|current_password',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        auth()->user()->update([
+            'password' => Hash::make($validated['password']),
+        ]);
+
+        return back()->with('success', 'Password changed successfully');
     }
 }

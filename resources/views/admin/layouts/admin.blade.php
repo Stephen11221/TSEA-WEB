@@ -9,12 +9,13 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --color-primary: #0066CC;
-            --color-secondary: #00B359;
-            --color-accent: #FF6B35;
+            --color-primary: #0B1D33; /* Deep Corporate Navy */
+            --color-gold: #C5A059;    /* TSEA Gold */
+            --color-gold-hover: #D4AF37;
+            --color-accent: #C5A059;
             --color-dark: #1a1a1a;
-            --color-light: #F8F9FA;
-            --color-border: #E0E0E0;
+            --color-light: #FFFFFF; /* Premium White */
+            --color-border: rgba(197, 160, 89, 0.2); /* Gold-tinted border */
             --color-text: #333333;
             --color-text-muted: #666666;
             --sidebar-width: 260px;
@@ -43,8 +44,7 @@
         /* Sidebar */
         .admin-sidebar {
             width: var(--sidebar-width);
-            background: #ffffff;
-            border-right: 1px solid var(--color-border);
+            background: var(--color-primary);
             overflow-y: auto;
             position: fixed;
             height: 100vh;
@@ -61,14 +61,14 @@
         
         .sidebar-header {
             padding: 20px;
-            border-bottom: 1px solid var(--color-border);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
             text-align: center;
         }
         
         .sidebar-logo {
             font-size: 24px;
             font-weight: bold;
-            color: var(--color-primary);
+            color: #ffffff;
             text-decoration: none;
             display: block;
         }
@@ -86,7 +86,7 @@
             font-size: 12px;
             font-weight: 700;
             text-transform: uppercase;
-            color: var(--color-text-muted);
+            color: rgba(255,255,255,0.5);
             letter-spacing: 0.5px;
         }
         
@@ -104,7 +104,7 @@
             display: flex;
             align-items: center;
             padding: 12px 20px;
-            color: var(--color-text);
+            color: rgba(255,255,255,0.7);
             text-decoration: none;
             transition: all 0.3s ease;
             font-size: 14px;
@@ -115,14 +115,14 @@
         }
         
         .nav-link:hover {
-            background-color: rgba(0, 102, 204, 0.1);
-            color: var(--color-primary);
+            background-color: rgba(197, 160, 89, 0.1);
+            color: #ffffff;
         }
         
         .nav-link.active {
-            background-color: rgba(0, 102, 204, 0.15);
-            color: var(--color-primary);
-            border-right: 4px solid var(--color-primary);
+            background-color: var(--color-gold);
+            color: #ffffff;
+            border-right: 4px solid #ffffff;
         }
         
         .nav-link i {
@@ -141,8 +141,8 @@
         
         /* Top Bar */
         .admin-topbar {
-            background: #ffffff;
-            border-bottom: 1px solid var(--color-border);
+            background: var(--color-primary);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
             padding: 0 30px;
             display: flex;
             justify-content: space-between;
@@ -164,11 +164,13 @@
         .topbar-search input {
             width: 100%;
             padding: 8px 16px;
-            border: 1px solid var(--color-border);
+            border: 1px solid rgba(255,255,255,0.2);
             border-radius: 6px;
             font-size: 14px;
-            background-color: var(--color-light);
+            background-color: rgba(255,255,255,0.1);
+            color: white;
         }
+        .topbar-search input::placeholder { color: rgba(255,255,255,0.5); }
         
         .topbar-actions {
             display: flex;
@@ -179,7 +181,7 @@
         
         .notification-icon, .user-menu-toggle {
             font-size: 18px;
-            color: var(--color-text);
+            color: #ffffff;
             cursor: pointer;
             position: relative;
             border: none;
@@ -194,7 +196,7 @@
         
         .notification-icon:hover,
         .user-menu-toggle:hover {
-            color: var(--color-primary);
+            opacity: 0.8;
         }
         
         .notification-badge {
@@ -262,14 +264,14 @@
         }
         
         .btn-primary {
-            background-color: var(--color-primary);
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-gold) 100%);
             color: white;
         }
         
         .btn-primary:hover {
-            background-color: #0052A3;
+            background-color: var(--color-gold-hover);
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,102,204,0.3);
+            box-shadow: 0 4px 12px rgba(197, 160, 89, 0.3);
         }
         
         .btn-secondary {
@@ -324,10 +326,10 @@
         }
         
         .kpi-icon.primary { background-color: rgba(0,102,204,0.1); color: var(--color-primary); }
-        .kpi-icon.success { background-color: rgba(0,179,89,0.1); color: var(--color-secondary); }
+        .kpi-icon.success { background-color: rgba(0,148,68,0.1); color: var(--color-secondary); }
         .kpi-icon.warning { background-color: rgba(255,107,53,0.1); color: var(--color-accent); }
         
-        .kpi-value {
+        .kpi-value { /* No change, uses var(--color-text) */
             font-size: 28px;
             font-weight: 700;
             color: var(--color-text);
@@ -410,10 +412,10 @@
             font-weight: 600;
         }
         
-        .badge-success { background-color: rgba(0,179,89,0.2); color: var(--color-secondary); }
+        .badge-success { background-color: rgba(0,148,68,0.2); color: var(--color-secondary); }
         .badge-warning { background-color: rgba(255,107,53,0.2); color: var(--color-accent); }
         .badge-danger { background-color: rgba(102,102,102,0.2); color: var(--color-text-muted); }
-        .badge-info { background-color: rgba(0,102,204,0.2); color: var(--color-primary); }
+        .badge-info { background-color: rgba(0,123,255,0.2); color: var(--color-primary); }
         
         /* Responsive */
         @media (max-width: 768px) {
@@ -474,6 +476,12 @@
                 <div class="nav-section">
                     <div class="nav-section-title">Management</div>
                     <div class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>RBAC Control</span>
+                        </a>
+                    </div>
+                    <div class="nav-item">
                         <a href="{{ route('admin.users.index') }}" class="nav-link @if(request()->routeIs('admin.users.*')) active @endif">
                             <i class="fas fa-users"></i>
                             <span>Users</span>
@@ -495,6 +503,12 @@
                         <a href="{{ route('admin.jobs.index') }}" class="nav-link @if(request()->routeIs('admin.jobs.*')) active @endif">
                             <i class="fas fa-briefcase"></i>
                             <span>Job Postings</span>
+                        </a>
+                    </div>
+                    <div class="nav-item">
+                        <a href="{{ route('admin.programs.index') }}" class="nav-link @if(request()->routeIs('admin.programs.index')) active @endif">
+                            <i class="fas fa-tasks"></i>
+                            <span>Program Status</span>
                         </a>
                     </div>
                     <div class="nav-item">
@@ -585,6 +599,8 @@
             <div class="admin-content">
                 @yield('content')
             </div>
+           </div>
+
         </main>
     </div>
     

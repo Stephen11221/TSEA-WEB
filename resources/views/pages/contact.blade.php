@@ -8,7 +8,7 @@
         <form class="card contact-form" action="{{ route('contact.send') }}" method="POST">
             @csrf
             @if(session('success'))
-                <div class="alert alert-success" style="background: #d4edda; color: #155724; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #c3e6cb;">
+                <div class="alert alert-success" style="background: #D4F0E0; color: #009444; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #80D2A7;">
                     {{ session('success') }}
                 </div>
             @endif

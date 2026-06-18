@@ -14,7 +14,7 @@
             </div>
         </div>
         <div class="card" style="padding: 24px; background: white; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.08);">
-            <h3 style="margin-bottom: 20px; font-size: 16px; font-weight: 700; color: var(--color-primary);">Talent Readiness Index</h3>
+            <h3 style="margin-bottom: 20px; font-size: 16px; font-weight: 700; color: var(--color-primary);">Talent Readiness Index</h3> {{-- No change, uses var --}}
             @include('partials.charts', ['type' => 'bars', 'items' => [
                 'Digital Skills' => 88, 
                 'Technical Proficiency' => 79, 
@@ -46,7 +46,7 @@
             @forelse ($employerPartners as $partner)
                 <div class="card" style="text-align: center; padding: 25px; border-radius: 12px; border: 1px solid var(--color-border);">
                     <div style="width: 50px; height: 50px; background: rgba(0, 102, 204, 0.05); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; color: var(--color-primary);">
-                        <i class="fas fa-building"></i>
+                        <i class="fas fa-building"></i> {{-- No change, uses var --}}
                     </div>
                     <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 4px;">{{ $partner->name }}</h3>
                     <span style="font-size: 11px; color: var(--color-secondary); font-weight: 600; text-transform: uppercase;">Verified Partner</span>

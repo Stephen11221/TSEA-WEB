@@ -164,8 +164,8 @@ Routes:
 
 Colors (TSEA Brand):
 ├─ Primary: #0066CC (Blue)
-├─ Secondary: #00B359 (Green)
-├─ Accent: #FF6B35 (Orange)
+├─ Secondary: #009444 (Success / Growth Green)
+├─ Accent: #FF6B35 (Orange) {{-- No change, as no orange was provided in the new palette --}}
 ├─ Light: #F8F9FA
 └─ Dark: #1a1a1a
 

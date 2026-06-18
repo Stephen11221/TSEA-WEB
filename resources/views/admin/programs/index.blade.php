@@ -95,6 +95,41 @@
     </form>
 </div>
 
+<!-- Status Management Modal -->
+<div id="statusModal" class="modal" style="display:none; position:fixed; z-index:2000; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.5); align-items:center; justify-content:center;">
+    <div class="card" style="width:450px; background:white; padding:25px; border-radius:12px; position:relative;">
+        <h2 style="color:var(--color-primary); margin-bottom:15px; font-size:1.2rem;">Update Program Status</h2>
+        <form id="statusUpdateForm" method="POST">
+            @csrf
+            <div style="margin-bottom:15px;">
+                <label style="display:block; margin-bottom:5px; font-weight:600;">Status</label>
+                <select name="status" id="modalStatusSelect" class="form-control" style="width:100%; padding:10px; border-radius:6px; border:1px solid var(--color-border);">
+                    <option value="active">Active</option>
+                    <option value="disabled">Disabled</option>
+                    <option value="published">Published</option>
+                    <option value="unpublished">Unpublished</option>
+                    <option value="archived">Archived</option>
+                </select>
+            </div>
+            
+            <div style="margin-bottom:15px;">
+                <label style="display:block; margin-bottom:5px; font-weight:600;">Schedule Activation (Optional)</label>
+                <input type="date" name="scheduled_activation_at" class="form-control" style="width:100%; padding:10px; border-radius:6px; border:1px solid var(--color-border);">
+            </div>
+
+            <div style="margin-bottom:20px;">
+                <label style="display:block; margin-bottom:5px; font-weight:600;">Schedule Deactivation (Optional)</label>
+                <input type="date" name="scheduled_deactivation_at" class="form-control" style="width:100%; padding:10px; border-radius:6px; border:1px solid var(--color-border);">
+            </div>
+
+            <div style="display:flex; justify-content:flex-end; gap:10px;">
+                <button type="button" class="btn btn-secondary" onclick="closeStatusModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary">Update Status</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <style>
     .btn-icon {
         background: none;
@@ -116,5 +151,21 @@
         const checkboxes = document.querySelectorAll('input[name="ids[]"]');
         checkboxes.forEach(cb => cb.checked = this.checked);
     });
+
+    function showStatusModal(id, currentStatus) {
+        const modal = document.getElementById('statusModal');
+        const form = document.getElementById('statusUpdateForm');
+        const select = document.getElementById('modalStatusSelect');
+        
+        // Set the dynamic action URL
+        form.action = `/admin/programs/${id}/status`;
+        select.value = currentStatus;
+        
+        modal.style.display = 'flex';
+    }
+
+    function closeStatusModal() {
+        document.getElementById('statusModal').style.display = 'none';
+    }
 </script>
 @endsection

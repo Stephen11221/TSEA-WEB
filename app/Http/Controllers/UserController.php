@@ -7,11 +7,12 @@ use App\Models\Program; // Import the Program model
 use App\Models\JobPosting;
 use App\Models\Application;
 use App\Models\Notification;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
     /**
-     * User dashboard
+     * Student dashboard
      */
     public function dashboard()
     {
@@ -149,7 +150,7 @@ class UserController extends Controller
      */
     public function editProfile()
     {
-        return view('user.profile.edit', ['user' => auth()->user()]);
+        return view('profile.edit', ['user' => auth()->user()]);
     }
 
     /**
@@ -160,9 +161,16 @@ class UserController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . auth()->id(),
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        auth()->user()->update($validated);
+        $user = auth()->user();
+        $user->update($validated);
+
+        if ($request->hasFile('avatar')) {
+            $path = $request->file('avatar')->store('avatars', 'public');
+            $user->update(['avatar' => $path]);
+        }
 
         return redirect()->route('user.profile')->with('success', 'Profile updated successfully');
     }
@@ -186,7 +194,7 @@ class UserController extends Controller
         ]);
 
         auth()->user()->update([
-            'password' => bcrypt($validated['password']),
+            'password' => Hash::make($validated['password']),
         ]);
 
         return back()->with('success', 'Password changed successfully');
@@ -225,5 +233,14 @@ class UserController extends Controller
         }
         $notification->update(['read_at' => now()]);
         return back()->with('success', 'Notification marked as read.');
+    }
+
+    /**
+     * Display the multi-step student enrollment tracking page.
+     */
+    public function showEnrollment($id)
+    {
+        $program = \App\Models\Program::findOrFail($id);
+        return view('enrollment.track', compact('program'));
     }
 }
