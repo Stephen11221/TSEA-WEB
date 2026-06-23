@@ -9,6 +9,7 @@ use App\Models\Course;
 use App\Models\Application;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class AdminController extends Controller
 {
@@ -17,39 +18,52 @@ class AdminController extends Controller
      */
     public function dashboard()
     {
+        // User Statistics
         $totalUsers = User::count();
         $activeUsers = User::where('status', 'active')->count();
         $totalAdmins = User::where('role', 'admin')->count();
         $totalEmployers = User::where('role', 'employer')->count();
+        $totalStudents = User::where('role', 'student')->count();
         $pendingEmployers = User::where('role', 'employer')->where('status', 'pending')->count();
         $newUsersThisMonth = User::whereMonth('created_at', now()->month)
             ->whereYear('created_at', now()->year)
             ->count();
         
-        // Fetched data for jobs, courses, and applications
+        // Jobs, Courses, and Applications Statistics
         $totalJobs = JobPosting::count();
         $activeJobs = JobPosting::where('status', 'open')->count();
         $totalCourses = Course::count();
         $activeCourses = Course::where('status', '!=', 'draft')->count();
         $totalApplications = Application::count();
         $pendingApplications = Application::where('status', 'pending')->count();
-        $totalRevenue = 0;
         
-        // Recent activities
-        $recentActivities = [
-            ['user' => 'John Doe', 'action' => 'Created new user account', 'time' => '2 hours ago'],
-            ['user' => 'Jane Smith', 'action' => 'Updated course content', 'time' => '4 hours ago'],
-            ['user' => 'Mike Johnson', 'action' => 'Posted new job', 'time' => '1 day ago'],
-        ];
+        // Recent user activities from actual database
+        $recentActivities = User::latest()->take(5)->get()->map(function($user) {
+            $actionMap = [
+                'admin' => 'Registered as Administrator',
+                'employer' => 'Registered as Employer',
+                'student' => 'Registered as Student',
+                'instructor' => 'Registered as Instructor',
+            ];
+            
+            return [
+                'user' => $user->name,
+                'action' => $actionMap[$user->role] ?? 'User Registration',
+                'time' => $user->created_at->diffForHumans(),
+            ];
+        })->toArray();
+
+        // Monthly user growth statistics from actual data
+        $monthlyStats = [];
+        for ($i = 11; $i >= 0; $i--) {
+            $month = now()->subMonths($i);
+            $count = User::whereMonth('created_at', $month->month)
+                ->whereYear('created_at', $month->year)
+                ->count();
+            $monthlyStats[$month->format('M')] = $count;
+        }
         
-        // Monthly statistics
-        $monthlyStats = [
-            'Jan' => 45, 'Feb' => 52, 'Mar' => 48, 'Apr' => 61,
-            'May' => 55, 'Jun' => 67, 'Jul' => 72, 'Aug' => 68,
-            'Sep' => 74, 'Oct' => 79, 'Nov' => 85, 'Dec' => 90
-        ];
-        
-        // Program visibility stats for visualization
+        // Program visibility stats
         $allPrograms = Program::all();
         $programStats = [
             'published' => $allPrograms->filter(function($p) {
@@ -67,11 +81,18 @@ class AdminController extends Controller
             })->count(),
         ];
 
+        // Get total programs
+        $totalPrograms = Program::count();
+        
+        // Calculate engagement rate
+        $engagementRate = $totalUsers > 0 ? round(($activeUsers / $totalUsers) * 100) : 0;
+
         return view('admin.dashboard.index', [
             'totalUsers' => $totalUsers,
             'activeUsers' => $activeUsers,
             'totalAdmins' => $totalAdmins,
             'totalEmployers' => $totalEmployers,
+            'totalStudents' => $totalStudents,
             'pendingEmployers' => $pendingEmployers,
             'newUsersThisMonth' => $newUsersThisMonth,
             'totalJobs' => $totalJobs,
@@ -80,10 +101,12 @@ class AdminController extends Controller
             'activeCourses' => $activeCourses,
             'totalApplications' => $totalApplications,
             'pendingApplications' => $pendingApplications,
-            'totalRevenue' => $totalRevenue,
+            'totalPrograms' => $totalPrograms,
+            'programStats' => $programStats,
             'recentActivities' => $recentActivities,
             'monthlyStats' => $monthlyStats,
-            'programStats' => $programStats,
+            'engagementRate' => $engagementRate,
+            'totalRevenue' => 0,
         ]);
     }
 
@@ -261,6 +284,17 @@ class AdminController extends Controller
     public function programs()
     {
         $allPrograms = Program::all();
+        $query = Program::query();
+
+        if (request()->filled('search')) {
+            $search = request('search');
+            $query->where(function ($builder) use ($search) {
+                $builder->where('title', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%")
+                    ->orWhere('category', 'like', "%{$search}%")
+                    ->orWhere('level', 'like', "%{$search}%");
+            });
+        }
         
         $stats = [
             'total' => $allPrograms->count(),
@@ -277,8 +311,81 @@ class AdminController extends Controller
             })->count(),
         ];
 
-        $programs = Program::latest()->paginate(15);
+        $programs = $query->latest()->paginate(15)->withQueryString();
         return view('admin.programs.index', compact('programs', 'stats'));
+    }
+
+    /**
+     * Store a new program
+     */
+    public function storeProgram(Request $request)
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'icon' => 'nullable|string|max:255',
+            'category' => 'nullable|string|max:255',
+            'level' => 'nullable|string|max:255',
+            'status' => 'required|in:active,inactive,published,unpublished,archived,disabled',
+            'scheduled_activation_at' => 'nullable|date',
+            'scheduled_deactivation_at' => 'nullable|date|after_or_equal:scheduled_activation_at',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+        ]);
+
+        if ($request->hasFile('image')) {
+            $validated['image'] = $request->file('image')->store('programs', 'public');
+        }
+
+        $validated['is_active'] = in_array($validated['status'], ['active', 'published']);
+
+        Program::create($validated);
+
+        return back()->with('success', 'Program created successfully.');
+    }
+
+    /**
+     * Update an existing program
+     */
+    public function updateProgram(Request $request, Program $program)
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'icon' => 'nullable|string|max:255',
+            'category' => 'nullable|string|max:255',
+            'level' => 'nullable|string|max:255',
+            'status' => 'required|in:active,inactive,published,unpublished,archived,disabled',
+            'scheduled_activation_at' => 'nullable|date',
+            'scheduled_deactivation_at' => 'nullable|date|after_or_equal:scheduled_activation_at',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+        ]);
+
+        if ($request->hasFile('image')) {
+            if ($program->image) {
+                Storage::disk('public')->delete($program->image);
+            }
+            $validated['image'] = $request->file('image')->store('programs', 'public');
+        }
+
+        $validated['is_active'] = in_array($validated['status'], ['active', 'published']);
+
+        $program->update($validated);
+
+        return back()->with('success', 'Program updated successfully.');
+    }
+
+    /**
+     * Delete a program
+     */
+    public function destroyProgram(Program $program)
+    {
+        if ($program->image) {
+            Storage::disk('public')->delete($program->image);
+        }
+
+        $program->delete();
+
+        return back()->with('success', 'Program deleted successfully.');
     }
 
     /**

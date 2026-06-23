@@ -82,7 +82,7 @@ class AuthController extends Controller
             'email' => 'required|email|unique:users',
             'phone' => 'nullable|string|max:20',
             'bio' => 'nullable|string|max:500',
-            'role' => 'required|in:user,employer,instructor',
+            'role' => 'required|in:student,employer,instructor',
             'password' => 'required|string|min:8|confirmed',
             'company_website' => 'nullable|url|max:255',
             'industry' => 'nullable|string|max:255',

@@ -30,7 +30,15 @@ class User extends Authenticatable
      */
     public function isUser(): bool
     {
-        return $this->role === 'user';
+        return in_array($this->role, ['student', 'user'], true);
+    }
+
+    /**
+     * Check if user is student / job seeker
+     */
+    public function isStudent(): bool
+    {
+        return in_array($this->role, ['student', 'user'], true);
     }
 
     /**

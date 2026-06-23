@@ -1,4 +1,4 @@
-@extends('admin.layouts.employer')
+    @extends('admin.layouts.employer')
 
 @section('title', 'Edit Job Posting - ' . $job->title . ' - TSEA')
 

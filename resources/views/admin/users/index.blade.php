@@ -1,6 +1,6 @@
 @extends('admin.layouts.admin')
 
-@section('title', 'Manage Users - TSEA Admin')
+@section('title', 'Manage Students - TSEA Admin')
 
 @section('content')
 
@@ -225,12 +225,12 @@ tr:hover{
 ```
 <div class="header">
     <div>
-        <h1 class="title">User Directory</h1>
-        <p class="subtitle">Manage platform users, roles and permissions.</p>
+        <h1 class="title">Student Directory</h1>
+        <p class="subtitle">Manage platform students, roles and permissions.</p>
     </div>
 
     <a href="{{ route('admin.users.create') }}" class="btn-primary">
-        + Add User
+        + Add Student
     </a>
 </div>
 
@@ -243,29 +243,29 @@ tr:hover{
 <div class="stats">
     <div class="stat-card">
         <h3>{{ $users->total() }}</h3>
-        <p>Total Users</p>
+        <p>Total Students</p>
     </div>
 
     <div class="stat-card">
         <h3>{{ $users->where('status','active')->count() }}</h3>
-        <p>Active Users</p>
+        <p>Active Students</p>
     </div>
 
     <div class="stat-card">
         <h3>{{ $users->where('status','pending')->count() }}</h3>
-        <p>Pending Users</p>
+        <p>Pending Students</p>
     </div>
 
     <div class="stat-card">
         <h3>{{ $users->where('status','inactive')->count() }}</h3>
-        <p>Inactive Users</p>
+        <p>Inactive Students</p>
     </div>
 </div>
 
 <div class="card">
 
     <div class="card-header">
-        <h2>Manage Users</h2>
+        <h2>Manage Students</h2>
     </div>
 
     <div class="search-box">
@@ -273,7 +273,7 @@ tr:hover{
             type="text"
             id="searchUsers"
             class="search-input"
-            placeholder="Search users..."
+            placeholder="Search students..."
         >
     </div>
 
@@ -318,7 +318,7 @@ tr:hover{
                         @elseif($user->role == 'employer')
                             <span class="badge employer">Employer</span>
                         @else
-                            <span class="badge user">User</span>
+                            <span class="badge user">Student</span>
                         @endif
                     </td>
 
@@ -366,7 +366,7 @@ tr:hover{
                 <tr>
                     <td colspan="6">
                         <div class="empty">
-                            No users found.
+                            No students found.
                         </div>
                     </td>
                 </tr>
@@ -413,7 +413,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
         btn.addEventListener('click', function(e){
 
-            if(!confirm('Are you sure you want to delete this user?')){
+            if(!confirm('Are you sure you want to delete this student?')){
                 e.preventDefault();
             }
 

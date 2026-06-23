@@ -484,7 +484,7 @@
                     <div class="nav-item">
                         <a href="{{ route('admin.users.index') }}" class="nav-link @if(request()->routeIs('admin.users.*')) active @endif">
                             <i class="fas fa-users"></i>
-                            <span>Users</span>
+                            <span>Students</span>
                         </a>
                     </div>
                     <div class="nav-item">
@@ -518,7 +518,7 @@
                         </a>
                     </div>
                     <div class="nav-item">
-                        <a href="#" class="nav-link">
+                        <a href="{{ route('admin.applications.index') }}" class="nav-link @if(request()->routeIs('admin.applications.*')) active @endif">
                             <i class="fas fa-file-alt"></i>
                             <span>Applications</span>
                         </a>

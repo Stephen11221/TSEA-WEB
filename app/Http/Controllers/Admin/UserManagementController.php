@@ -28,7 +28,7 @@ class UserManagementController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'unique:users'],
-            'role' => ['required', 'in:admin,employer,user,instructor'],
+            'role' => ['required', 'in:employer,student,instructor'],
             'password' => ['required', Password::defaults()],
         ]);
 
@@ -38,7 +38,7 @@ class UserManagementController extends Controller
 
         User::create($validated);
 
-        return redirect()->route('admin.users.index')->with('success', 'User created successfully.');
+        return redirect()->route('admin.users.index')->with('success', 'Student created successfully.');
     }
 
     public function show(User $user): View
@@ -56,13 +56,26 @@ class UserManagementController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'unique:users,email,' . $user->id],
-            'role' => ['required', 'in:admin,employer,user,instructor'],
+            'role' => ['required', 'in:employer,student,instructor'],
             'status' => ['required', 'in:active,inactive,suspended,pending'],
         ]);
 
         $user->update($validated);
 
-        return redirect()->route('admin.users.index')->with('success', 'User updated successfully.');
+        return redirect()->route('admin.users.index')->with('success', 'Student updated successfully.');
+    }
+
+    public function updatePassword(Request $request, User $user): RedirectResponse
+    {
+        $validated = $request->validate([
+            'password' => ['required', 'confirmed', Password::defaults()],
+        ]);
+
+        $user->update([
+            'password' => Hash::make($validated['password']),
+        ]);
+
+        return redirect()->route('admin.users.edit', $user)->with('success', 'Student password updated successfully.');
     }
 
     public function toggleActive(User $user): RedirectResponse
@@ -71,12 +84,12 @@ class UserManagementController extends Controller
             'status' => $user->status === 'active' ? 'inactive' : 'active'
         ]);
 
-        return back()->with('success', 'User status toggled.');
+        return back()->with('success', 'Student status toggled.');
     }
 
     public function destroy(User $user): RedirectResponse
     {
         $user->delete();
-        return redirect()->route('admin.users.index')->with('success', 'User deleted.');
+        return redirect()->route('admin.users.index')->with('success', 'Student deleted.');
     }
 }

@@ -1,102 +1,135 @@
-@extends('layouts.app')
+@extends('layouts.auth')
 @section('title', 'Employer Registration - TSEA')
+@section('description', 'Create your employer account')
 
 @section('content')
-<section class="section" style="background: var(--color-light); min-height: 100vh; display: flex; align-items: center;">
-    <div class="container" style="max-width: 600px;">
-        <div class="card" style="padding: 40px; border-radius: 16px; background: white; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
-            <div style="text-align: center; margin-bottom: 30px;">
-                <span class="eyebrow">Join the Network</span>
-                <h1 style="font-size: 28px; font-weight: 800; margin-top: 10px;">Employer Registration</h1>
-                <p style="color: var(--color-text-muted);">Create your organization profile to start accessing verified talent.</p>
-            </div>
+<section class="section auth-wrap">
+    <div class="container">
+        <div class="auth-shell auth-shell-register">
+            <aside class="auth-panel auth-panel-brand">
+                <span class="auth-chip">TSEA</span>
+                <h1>Employer Onboarding</h1>
+                <p>Create an employer profile to publish opportunities and connect with verified talent.</p>
+                <a href="{{ route('login') }}" class="auth-outline-btn">Sign In</a>
+            </aside>
 
-            <form method="POST" action="{{ route('register.store') }}">
-                @csrf
-                <input type="hidden" name="role" value="employer">
-
-                <div style="display: grid; gap: 20px;">
-                    <div>
-                        <label style="display: block; font-weight: 700; font-size: 14px; margin-bottom: 8px;">Company Name</label>
-                        <input type="text" name="name" value="{{ old('name') }}" required placeholder="e.g. Acme Tech Solutions" style="width: 100%; padding: 12px; border: 1px solid var(--color-border); border-radius: 8px;">
-                        @error('name') <span style="color: var(--color-accent); font-size: 12px; margin-top: 5px; display: block;">{{ $message }}</span> @enderror
-                    </div>
-
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                        <div>
-                            <label style="display: block; font-weight: 700; font-size: 14px; margin-bottom: 8px;">Contact Email</label>
-                            <input type="email" name="email" value="{{ old('email') }}" required placeholder="hr@company.com" style="width: 100%; padding: 12px; border: 1px solid var(--color-border); border-radius: 8px;">
-                        </div>
-                        <div>
-                            <label style="display: block; font-weight: 700; font-size: 14px; margin-bottom: 8px;">Phone Number</label>
-                            <input type="text" name="phone" value="{{ old('phone') }}" placeholder="+254..." style="width: 100%; padding: 12px; border: 1px solid var(--color-border); border-radius: 8px;">
-                        </div>
-                    </div>
-
-                    <div>
-                        <label style="display: block; font-weight: 700; font-size: 14px; margin-bottom: 8px;">Company Website</label>
-                        <input type="url" name="company_website" value="{{ old('company_website') }}" placeholder="https://..." style="width: 100%; padding: 12px; border: 1px solid var(--color-border); border-radius: 8px;">
-                        @error('company_website') <span style="color: var(--color-accent); font-size: 12px; margin-top: 5px; display: block;">{{ $message }}</span> @enderror
-                    </div>
-
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                        <div>
-                            <label style="display: block; font-weight: 700; font-size: 14px; margin-bottom: 8px;">Industry</label>
-                            <select name="industry" style="width: 100%; padding: 12px; border: 1px solid var(--color-border); border-radius: 8px; background: white;">
-                                <option value="">Select Industry</option>
-                                <option value="Technology">Technology</option>
-                                <option value="Finance">Finance</option>
-                                <option value="Healthcare">Healthcare</option>
-                                <option value="Education">Education</option>
-                                <option value="Energy">Energy</option>
-                                <option value="Agriculture">Agriculture</option>
-                            </select>
-                            @error('industry') <span style="color: var(--color-accent); font-size: 12px; margin-top: 5px; display: block;">{{ $message }}</span> @enderror
-                        </div>
-                        <div>
-                            <label style="display: block; font-weight: 700; font-size: 14px; margin-bottom: 8px;">Company Size</label>
-                            <select name="company_size" style="width: 100%; padding: 12px; border: 1px solid var(--color-border); border-radius: 8px; background: white;">
-                                <option value="">Select Size</option>
-                                <option value="1-10">1-10 employees</option>
-                                <option value="11-50">11-50 employees</option>
-                                <option value="51-200">51-200 employees</option>
-                                <option value="201-500">201-500 employees</option>
-                                <option value="500+">500+ employees</option>
-                            </select>
-                            @error('company_size') <span style="color: var(--color-accent); font-size: 12px; margin-top: 5px; display: block;">{{ $message }}</span> @enderror
-                        </div>
-                    </div>
-
-                    <div>
-                        <label style="display: block; font-weight: 700; font-size: 14px; margin-bottom: 8px;">Organization Bio</label>
-                        <textarea name="bio" rows="3" placeholder="Tell us about your organization..." style="width: 100%; padding: 12px; border: 1px solid var(--color-border); border-radius: 8px;">{{ old('bio') }}</textarea>
-                    </div>
-
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                        <div>
-                            <label style="display: block; font-weight: 700; font-size: 14px; margin-bottom: 8px;">Password</label>
-                            <input type="password" name="password" required style="width: 100%; padding: 12px; border: 1px solid var(--color-border); border-radius: 8px;">
-                        </div>
-                        <div>
-                            <label style="display: block; font-weight: 700; font-size: 14px; margin-bottom: 8px;">Confirm Password</label>
-                            <input type="password" name="password_confirmation" required style="width: 100%; padding: 12px; border: 1px solid var(--color-border); border-radius: 8px;">
-                        </div>
-                    </div>
-
-                    <div style="margin-top: 10px;">
-                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                            <input type="checkbox" name="agree_terms" required>
-                            <span style="font-size: 13px;">I agree to the <a href="#" style="color: var(--color-primary);">Terms of Service</a>.</span>
-                        </label>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 15px; justify-content: center; font-size: 16px;">
-                        Create Employer Account
-                    </button>
+            <div class="auth-panel auth-panel-form">
+                <div class="auth-heading">
+                    <h2>Register Employer</h2>
+                    <p>Set up your organization profile</p>
                 </div>
-            </form>
 
-            <p style="text-align: center; margin-top: 25px; font-size: 14px;">Already have an account? <a href="{{ route('login') }}" style="color: var(--color-primary); font-weight: 700;">Log in</a></p>
+                @if ($errors->any())
+                    <div class="alert alert-danger">
+                        <ul>
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                <form method="POST" action="{{ route('register.store') }}" class="auth-form-grid auth-form-grid-register">
+                    @csrf
+                    <input type="hidden" name="role" value="employer">
+
+                    <div class="form-group auth-span-full">
+                        <label for="name">Company Name *</label>
+                        <input id="name" type="text" name="name" value="{{ old('name') }}" required placeholder="Acme Tech Solutions">
+                        @error('name')
+                            <span class="error">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Contact Email *</label>
+                        <input id="email" type="email" name="email" value="{{ old('email') }}" required placeholder="hr@company.com">
+                        @error('email')
+                            <span class="error">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input id="phone" type="text" name="phone" value="{{ old('phone') }}" placeholder="+254 700 000 000">
+                        @error('phone')
+                            <span class="error">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group auth-span-full">
+                        <label for="company_website">Company Website</label>
+                        <input id="company_website" type="url" name="company_website" value="{{ old('company_website') }}" placeholder="https://example.com">
+                        @error('company_website')
+                            <span class="error">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="industry">Industry</label>
+                        <select id="industry" name="industry">
+                            <option value="">Select Industry</option>
+                            <option value="Technology" @if(old('industry') === 'Technology') selected @endif>Technology</option>
+                            <option value="Finance" @if(old('industry') === 'Finance') selected @endif>Finance</option>
+                            <option value="Healthcare" @if(old('industry') === 'Healthcare') selected @endif>Healthcare</option>
+                            <option value="Education" @if(old('industry') === 'Education') selected @endif>Education</option>
+                            <option value="Energy" @if(old('industry') === 'Energy') selected @endif>Energy</option>
+                            <option value="Agriculture" @if(old('industry') === 'Agriculture') selected @endif>Agriculture</option>
+                        </select>
+                        @error('industry')
+                            <span class="error">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="company_size">Company Size</label>
+                        <select id="company_size" name="company_size">
+                            <option value="">Select Size</option>
+                            <option value="1-10" @if(old('company_size') === '1-10') selected @endif>1-10 employees</option>
+                            <option value="11-50" @if(old('company_size') === '11-50') selected @endif>11-50 employees</option>
+                            <option value="51-200" @if(old('company_size') === '51-200') selected @endif>51-200 employees</option>
+                            <option value="201-500" @if(old('company_size') === '201-500') selected @endif>201-500 employees</option>
+                            <option value="500+" @if(old('company_size') === '500+') selected @endif>500+ employees</option>
+                        </select>
+                        @error('company_size')
+                            <span class="error">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group auth-span-full">
+                        <label for="bio">Organization Bio</label>
+                        <textarea id="bio" name="bio" rows="4" placeholder="Tell us about your organization...">{{ old('bio') }}</textarea>
+                        @error('bio')
+                            <span class="error">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password *</label>
+                        <input id="password" type="password" name="password" required placeholder="At least 8 characters">
+                        @error('password')
+                            <span class="error">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password_confirmation">Confirm Password *</label>
+                        <input id="password_confirmation" type="password" name="password_confirmation" required placeholder="Repeat password">
+                    </div>
+
+                    <label class="auth-check auth-span-full" for="agree_terms">
+                        <input type="checkbox" id="agree_terms" name="agree_terms" value="1" @if(old('agree_terms')) checked @endif required>
+                        <span>I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></span>
+                    </label>
+                    @error('agree_terms')
+                        <span class="error auth-span-full">{{ $message }}</span>
+                    @enderror
+
+                    <button type="submit" class="btn auth-cta auth-span-full">Create Employer Account</button>
+                </form>
+
+                <p class="auth-switch">Already have an account? <a href="{{ route('login') }}">Sign In</a></p>
+            </div>
         </div>
     </div>
 </section>

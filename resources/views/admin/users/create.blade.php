@@ -1,6 +1,6 @@
 @extends('admin.layouts.admin')
 
-@section('title', 'Add New User - TSEA Admin')
+@section('title', 'Add New Student - TSEA Admin')
 
 @section('content')
 
@@ -125,14 +125,14 @@
 ```
 <div class="page-header">
     <div>
-        <h1 class="page-title">Add New User</h1>
+        <h1 class="page-title">Add New Student</h1>
         <p class="page-subtitle">
-            Create a new account with specific roles and permissions.
+            Create a new student account with specific roles and permissions.
         </p>
     </div>
 
     <a href="{{ route('admin.users.index') }}" class="back-btn">
-        ← Back to Directory
+        ← Back to Student Directory
     </a>
 </div>
 
@@ -182,10 +182,9 @@
                             class="form-control"
                             required>
                         <option value="">Select Role</option>
-                        <option value="user">Regular User</option>
+                        <option value="student">Student</option>
                         <option value="employer">Employer</option>
                         <option value="instructor">Instructor</option>
-                        <option value="admin">Administrator</option>
                     </select>
 
                     @error('role')
@@ -203,7 +202,7 @@
                            required>
 
                     <small class="helper-text">
-                        User will be created as active and verified.
+                        Student will be created as active and verified.
                     </small>
 
                     @error('password')
@@ -213,7 +212,7 @@
 
                 <div class="form-footer">
                     <button type="submit" class="submit-btn">
-                        Create User Account
+                        Create Student Account
                     </button>
                 </div>
 

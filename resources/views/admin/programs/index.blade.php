@@ -3,13 +3,27 @@
 @section('title', 'Program Management')
 
 @section('content')
+@if(session('success'))
+    <div class="alert alert-success" style="margin-bottom: 16px;">{{ session('success') }}</div>
+@endif
+
+@if($errors->any())
+    <div class="alert alert-danger" style="margin-bottom: 16px;">
+        <ul style="margin: 0; padding-left: 18px;">
+            @foreach($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
 <div class="page-header">
     <div>
         <h1 class="page-title">Program Management</h1>
         <p class="page-subtitle">Activate, deactivate, or schedule visibility for Academies and Specializations.</p>
     </div>
     <div class="btn-group">
-        <a href="#" class="btn btn-primary"><i class="fas fa-plus"></i> Create New Program</a>
+        <button type="button" class="btn btn-primary" onclick="showCreateModal()"><i class="fas fa-plus"></i> Create New Program</button>
     </div>
 </div>
 
@@ -54,8 +68,9 @@
                 <button type="submit" class="btn btn-secondary" onclick="return confirm('Apply this action to all selected programs?')">Apply</button>
             </div>
             
-            <div class="topbar-search" style="max-width: 300px;">
-                <input type="text" placeholder="Search programs..." style="border: 1px solid var(--color-border); color: var(--color-text);">
+            <div class="topbar-search" style="max-width: 300px; display: flex; gap: 8px; align-items: center;">
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Search programs..." style="border: 1px solid var(--color-border); color: var(--color-text);">
+                <button type="submit" formaction="{{ route('admin.programs.index') }}" formmethod="GET" class="btn btn-secondary">Search</button>
             </div>
         </div>
 
@@ -112,7 +127,29 @@
                                     onclick="showStatusModal('{{ $program->id }}', '{{ $program->status }}')">
                                 <i class="fas fa-toggle-on"></i>
                             </button>
-                            <a href="#" class="btn-icon"><i class="fas fa-edit"></i></a>
+                            <button
+                                type="button"
+                                class="btn-icon"
+                                title="Edit Program"
+                                data-id="{{ $program->id }}"
+                                data-title="{{ e($program->title) }}"
+                                data-description="{{ e($program->description) }}"
+                                data-icon="{{ e($program->icon) }}"
+                                data-category="{{ e($program->category) }}"
+                                data-level="{{ e($program->level) }}"
+                                data-status="{{ $program->status }}"
+                                data-scheduled-activation="{{ optional($program->scheduled_activation_at)->format('Y-m-d') }}"
+                                data-scheduled-deactivation="{{ optional($program->scheduled_deactivation_at)->format('Y-m-d') }}"
+                                onclick="showEditModal(this)">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <form action="{{ route('admin.programs.destroy', $program) }}" method="POST" style="display: inline;">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn-icon" title="Delete Program" onclick="return confirm('Delete this program? This action cannot be undone.')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
                         </div>
                     </td>
                 </tr>
@@ -120,6 +157,41 @@
             </tbody>
         </table>
     </form>
+
+    <div style="margin-top: 16px;">
+        {{ $programs->links() }}
+    </div>
+</div>
+
+<!-- Create Program Modal -->
+<div id="createModal" class="modal" style="display:none; position:fixed; z-index:2000; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.5); align-items:center; justify-content:center;">
+    <div class="card" style="width:min(780px, 95vw); max-height:90vh; overflow:auto; background:white; padding:25px; border-radius:12px; position:relative;">
+        <h2 style="color:var(--color-primary); margin-bottom:15px; font-size:1.2rem;">Create Program</h2>
+        <form action="{{ route('admin.programs.store') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            @include('admin.programs.partials.form', ['program' => null])
+            <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
+                <button type="button" class="btn btn-secondary" onclick="closeCreateModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary">Create Program</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Edit Program Modal -->
+<div id="editModal" class="modal" style="display:none; position:fixed; z-index:2000; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.5); align-items:center; justify-content:center;">
+    <div class="card" style="width:min(780px, 95vw); max-height:90vh; overflow:auto; background:white; padding:25px; border-radius:12px; position:relative;">
+        <h2 style="color:var(--color-primary); margin-bottom:15px; font-size:1.2rem;">Edit Program</h2>
+        <form id="editProgramForm" method="POST" enctype="multipart/form-data">
+            @csrf
+            @method('PUT')
+            @include('admin.programs.partials.form', ['program' => null, 'isEdit' => true])
+            <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
+                <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+        </form>
+    </div>
 </div>
 
 <!-- Status Management Modal -->
@@ -193,6 +265,37 @@
 
     function closeStatusModal() {
         document.getElementById('statusModal').style.display = 'none';
+    }
+
+    function showCreateModal() {
+        document.getElementById('createModal').style.display = 'flex';
+    }
+
+    function closeCreateModal() {
+        document.getElementById('createModal').style.display = 'none';
+    }
+
+    function showEditModal(button) {
+        const modal = document.getElementById('editModal');
+        const form = document.getElementById('editProgramForm');
+        const routeTemplate = '{{ route('admin.programs.update', ['program' => '__ID__']) }}';
+        const id = button.dataset.id;
+
+        form.action = routeTemplate.replace('__ID__', id);
+        form.querySelector('[name="title"]').value = button.dataset.title || '';
+        form.querySelector('[name="description"]').value = button.dataset.description || '';
+        form.querySelector('[name="icon"]').value = button.dataset.icon || '';
+        form.querySelector('[name="category"]').value = button.dataset.category || '';
+        form.querySelector('[name="level"]').value = button.dataset.level || '';
+        form.querySelector('[name="status"]').value = button.dataset.status || 'inactive';
+        form.querySelector('[name="scheduled_activation_at"]').value = button.dataset.scheduledActivation || '';
+        form.querySelector('[name="scheduled_deactivation_at"]').value = button.dataset.scheduledDeactivation || '';
+
+        modal.style.display = 'flex';
+    }
+
+    function closeEditModal() {
+        document.getElementById('editModal').style.display = 'none';
     }
 
     // Program Visibility Pie Chart

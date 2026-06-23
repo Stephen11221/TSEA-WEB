@@ -36,18 +36,33 @@
         <div class="kpi-value">{{ $activeUsers }}</div>
         <div class="kpi-label">Active Users</div>
         <div class="kpi-change change-positive">
-            <i class="fas fa-arrow-up"></i> 92% engagement
+            <i class="fas fa-arrow-up"></i> {{ $engagementRate }}% engagement
         </div>
     </div>
     
     <div class="kpi-card">
         <div class="kpi-icon primary">
+            <i class="fas fa-graduation-cap"></i>
+        </div>
+        <div class="kpi-value">{{ $totalStudents }}</div>
+        <div class="kpi-label">Students</div>
+        <div class="kpi-change change-positive">
+            <i class="fas fa-arrow-up"></i> Active learners
+        </div>
+    </div>
+
+    <div class="kpi-card">
+        <div class="kpi-icon primary">
             <i class="fas fa-building"></i>
         </div>
         <div class="kpi-value">{{ $totalEmployers }}</div>
-        <div class="kpi-label">Total Employers</div>
+        <div class="kpi-label">Employers</div>
         <div class="kpi-change change-positive">
-            <i class="fas fa-check-circle"></i> Verified Partners
+            @if($pendingEmployers > 0)
+                <i class="fas fa-alert"></i> {{ $pendingEmployers }} pending
+            @else
+                <i class="fas fa-check-circle"></i> All verified
+            @endif
         </div>
     </div>
 
@@ -55,10 +70,10 @@
         <div class="kpi-icon warning">
             <i class="fas fa-briefcase"></i>
         </div>
-        <div class="kpi-value">{{ $totalJobs ?? 0 }}</div>
+        <div class="kpi-value">{{ $totalJobs }}</div>
         <div class="kpi-label">Job Postings</div>
         <div class="kpi-change change-positive">
-            <i class="fas fa-arrow-up"></i> {{ $activeJobs ?? 0 }} active
+            <i class="fas fa-arrow-up"></i> {{ $activeJobs }} active
         </div>
     </div>
     
@@ -66,10 +81,10 @@
         <div class="kpi-icon primary">
             <i class="fas fa-book"></i>
         </div>
-        <div class="kpi-value">{{ $totalCourses ?? 0 }}</div>
-        <div class="kpi-label">Courses</div>
+        <div class="kpi-value">{{ $totalPrograms }}</div>
+        <div class="kpi-label">Programs</div>
         <div class="kpi-change change-positive">
-            <i class="fas fa-arrow-up"></i> {{ $activeCourses ?? 0 }} published
+            <i class="fas fa-arrow-up"></i> {{ $programStats['published'] }} published
         </div>
     </div>
     
@@ -77,21 +92,25 @@
         <div class="kpi-icon success">
             <i class="fas fa-file-alt"></i>
         </div>
-        <div class="kpi-value">{{ $totalApplications ?? 0 }}</div>
+        <div class="kpi-value">{{ $totalApplications }}</div>
         <div class="kpi-label">Applications</div>
         <div class="kpi-change change-positive">
-            <i class="fas fa-alert"></i> {{ $pendingApplications ?? 0 }} pending
+            @if($pendingApplications > 0)
+                <i class="fas fa-alert"></i> {{ $pendingApplications }} pending
+            @else
+                <i class="fas fa-check-circle"></i> All reviewed
+            @endif
         </div>
     </div>
     
     <div class="kpi-card">
         <div class="kpi-icon warning">
-            <i class="fas fa-dollar-sign"></i>
+            <i class="fas fa-user-tie"></i>
         </div>
-        <div class="kpi-value">${{ number_format($totalRevenue ?? 0, 0) }}</div>
-        <div class="kpi-label">Total Revenue</div>
+        <div class="kpi-value">{{ $totalAdmins }}</div>
+        <div class="kpi-label">Administrators</div>
         <div class="kpi-change change-positive">
-            <i class="fas fa-arrow-up"></i> +15% vs last month
+            <i class="fas fa-shield-alt"></i> System admins
         </div>
     </div>
 </div>
@@ -103,40 +122,42 @@
         <canvas id="userGrowthChart"></canvas>
     </div>
     
-    <!-- System Status -->
+    <!-- Program Status -->
     <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-        <h3 style="margin-bottom: 20px; font-size: 16px; font-weight: 600;">System Status</h3>
-        <div style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #e0e0e0;">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                <span>API Response</span>
-                <span class="badge badge-success">Healthy</span>
+        <h3 style="margin-bottom: 20px; font-size: 16px; font-weight: 600;">Program Status Breakdown</h3>
+        <div style="display: grid; gap: 15px;">
+            <div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="font-weight: 500;">Published</span>
+                    <span style="font-weight: 600; color: var(--color-primary);">{{ $programStats['published'] }}</span>
+                </div>
+                <div style="width: 100%; height: 8px; background-color: #f0f0f0; border-radius: 4px; overflow: hidden;">
+                    <div style="width: {{ $totalPrograms > 0 ? ($programStats['published'] / $totalPrograms * 100) : 0 }}%; height: 100%; background-color: var(--color-secondary);"></div>
+                </div>
             </div>
-            <div style="width: 100%; height: 6px; background-color: #f0f0f0; border-radius: 3px; overflow: hidden;">
-                <div style="width: 95%; height: 100%; background-color: var(--color-secondary);"></div>
+            <div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="font-weight: 500;">Coming Soon</span>
+                    <span style="font-weight: 600; color: var(--color-accent);">{{ $programStats['coming_soon'] }}</span>
+                </div>
+                <div style="width: 100%; height: 8px; background-color: #f0f0f0; border-radius: 4px; overflow: hidden;">
+                    <div style="width: {{ $totalPrograms > 0 ? ($programStats['coming_soon'] / $totalPrograms * 100) : 0 }}%; height: 100%; background-color: var(--color-accent);"></div>
+                </div>
             </div>
-            <div style="font-size: 12px; color: #666; margin-top: 5px;">95% uptime</div>
-        </div>
-        
-        <div style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #e0e0e0;">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                <span>Database</span>
-                <span class="badge badge-success">Connected</span>
+            <div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="font-weight: 500;">Unavailable</span>
+                    <span style="font-weight: 600; color: #999;">{{ $programStats['unavailable'] }}</span>
+                </div>
+                <div style="width: 100%; height: 8px; background-color: #f0f0f0; border-radius: 4px; overflow: hidden;">
+                    <div style="width: {{ $totalPrograms > 0 ? ($programStats['unavailable'] / $totalPrograms * 100) : 0 }}%; height: 100%; background-color: #ddd;"></div>
+                </div>
             </div>
-            <div style="width: 100%; height: 6px; background-color: #f0f0f0; border-radius: 3px; overflow: hidden;">
-                <div style="width: 99%; height: 100%; background-color: var(--color-secondary);"></div>
+            <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #e0e0e0;">
+                <a href="{{ route('admin.programs.index') }}" style="color: var(--color-primary); text-decoration: none; font-weight: 500;">
+                    Manage Programs <i class="fas fa-arrow-right" style="margin-left: 6px;"></i>
+                </a>
             </div>
-            <div style="font-size: 12px; color: #666; margin-top: 5px;">99% uptime</div>
-        </div>
-        
-        <div>
-            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                <span>Storage</span>
-                <span class="badge badge-warning">40% Used</span>
-            </div>
-            <div style="width: 100%; height: 6px; background-color: #f0f0f0; border-radius: 3px; overflow: hidden;">
-                <div style="width: 40%; height: 100%; background-color: var(--color-accent);"></div>
-            </div>
-            <div style="font-size: 12px; color: #666; margin-top: 5px;">4GB of 10GB</div>
         </div>
     </div>
 </div>
@@ -182,19 +203,19 @@
     <h3 style="margin-bottom: 20px; font-size: 16px; font-weight: 600;">Quick Actions</h3>
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
         <a href="{{ route('admin.users.index') }}" class="btn btn-primary" style="justify-content: center;">
-            <i class="fas fa-user-plus"></i> Manage Users
+            <i class="fas fa-user-plus"></i> Manage Students
         </a>
         <a href="{{ route('admin.employers.index') }}" class="btn btn-primary" style="justify-content: center;">
             <i class="fas fa-building"></i> Manage Employers
         </a>
-        <a href="#" class="btn btn-primary" style="justify-content: center;">
-            <i class="fas fa-briefcase"></i> Post Job
+        <a href="{{ route('admin.programs.index') }}" class="btn btn-primary" style="justify-content: center;">
+            <i class="fas fa-tasks"></i> View Programs
         </a>
-        <a href="#" class="btn btn-primary" style="justify-content: center;">
-            <i class="fas fa-book"></i> Create Course
+        <a href="{{ route('admin.applications.index') }}" class="btn btn-primary" style="justify-content: center;">
+            <i class="fas fa-file-alt"></i> Applications
         </a>
-        <a href="#" class="btn btn-primary" style="justify-content: center;">
-            <i class="fas fa-file-alt"></i> View Applications
+        <a href="{{ route('admin.jobs.index') }}" class="btn btn-primary" style="justify-content: center;">
+            <i class="fas fa-briefcase"></i> Jobs
         </a>
     </div>
 </div>

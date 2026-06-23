@@ -1,13 +1,13 @@
 @extends('admin.layouts.admin')
 
 
-@section('title', 'Edit User - TSEA Admin')
-@section('description', 'Edit user information')
+@section('title', 'Edit Student - TSEA Admin')
+@section('description', 'Edit student information')
 
 @section('content')
 <section class="section">
     <div class="container">
-        <h1>Edit User</h1>
+        <h1>Edit Student</h1>
 
         @if ($errors->any())
             <div class="alert alert-danger">
@@ -42,8 +42,9 @@
             <div class="form-group">
                 <label for="role">Role</label>
                 <select id="role" name="role" required>
-                    <option value="user" {{ old('role', $user->role) === 'user' ? 'selected' : '' }}>User</option>
-                    <option value="admin" {{ old('role', $user->role) === 'admin' ? 'selected' : '' }}>Admin</option>
+                    <option value="student" {{ old('role', $user->role) === 'student' ? 'selected' : '' }}>Student</option>
+                    <option value="employer" {{ old('role', $user->role) === 'employer' ? 'selected' : '' }}>Employer</option>
+                    <option value="instructor" {{ old('role', $user->role) === 'instructor' ? 'selected' : '' }}>Instructor</option>
                 </select>
                 @error('role')
                     <span class="error">{{ $message }}</span>
@@ -53,6 +54,33 @@
             <div class="button-group">
                 <button type="submit" class="btn btn-primary">Save Changes</button>
                 <a href="{{ route('admin.users.show', $user) }}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+
+        <hr style="margin: 24px 0; border: 0; border-top: 1px solid #e5e7eb;">
+
+        <h2 style="margin-bottom: 12px;">Reset Student Password</h2>
+        <p style="margin-bottom: 16px; color: #6b7280;">Set a new password for this student account.</p>
+
+        <form action="{{ route('admin.users.password.update', $user) }}" method="POST" class="form-container">
+            @csrf
+            @method('PUT')
+
+            <div class="form-group">
+                <label for="password">New Password</label>
+                <input type="password" id="password" name="password" required>
+                @error('password')
+                    <span class="error">{{ $message }}</span>
+                @enderror
+            </div>
+
+            <div class="form-group">
+                <label for="password_confirmation">Confirm New Password</label>
+                <input type="password" id="password_confirmation" name="password_confirmation" required>
+            </div>
+
+            <div class="button-group">
+                <button type="submit" class="btn btn-primary" onclick="return confirm('Reset password for this student?')">Update Password</button>
             </div>
         </form>
     </div>

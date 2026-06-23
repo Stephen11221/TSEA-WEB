@@ -38,7 +38,7 @@ Route::controller(AuthController::class)->group(function () {
 });
 
 // User Routes
-Route::middleware(['auth', 'role:user'])->prefix('user')->name('user.')->controller(UserController::class)->group(function () {
+Route::middleware(['auth', 'role:student,user'])->prefix('user')->name('user.')->controller(UserController::class)->group(function () {
     Route::get('/dashboard', 'dashboard')->name('dashboard');
     Route::get('/passport/create', 'createPassport')->name('passport.create');
     Route::post('/passport', 'storePassport')->name('passport.store');
@@ -89,6 +89,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->cont
         Route::get('/users/{user}', 'show')->name('users.show'); // Mapped to UserManagementController@show
         Route::get('/users/{user}/edit', 'edit')->name('users.edit');
         Route::put('/users/{user}', 'update')->name('users.update');
+        Route::put('/users/{user}/password', 'updatePassword')->name('users.password.update');
         Route::delete('/users/{user}', 'destroy')->name('users.delete');
     });
     
@@ -100,7 +101,12 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->cont
     Route::put('/change-password', 'updatePassword')->name('change-password.update');
 
     Route::get('/passports', 'passports')->name('passports.index');
+    
+    // Job Applications Management
     Route::get('/applications', [ApplicationController::class, 'index'])->name('applications.index'); // Global application tracker
+    Route::get('/applications/{application}', [ApplicationController::class, 'show'])->name('applications.show');
+    Route::get('/applications/{application}/resume/download', [ApplicationController::class, 'downloadResume'])->name('applications.downloadResume');
+    Route::put('/applications/{application}/status', [ApplicationController::class, 'updateStatus'])->name('applications.updateStatus');
 
     // Employer Management
     Route::get('/employers', [EmployerController::class, 'index'])->name('employers.index');
@@ -120,6 +126,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->cont
     Route::delete('/jobs/{job}', 'destroyJob')->name('jobs.destroy');
 
     Route::get('/programs', 'programs')->name('programs.index');
+    Route::post('/programs', 'storeProgram')->name('programs.store');
+    Route::put('/programs/{program}', 'updateProgram')->name('programs.update');
+    Route::delete('/programs/{program}', 'destroyProgram')->name('programs.destroy');
     Route::post('/programs/bulk', [AdminController::class, 'bulkProgramStatus'])->name('programs.bulk');
     Route::post('/programs/{id}/status', [AdminController::class, 'updateProgramStatus'])->name('programs.status.update');
 
