@@ -21,7 +21,7 @@
 
         <p class="brand-statement large">
             <span>Your Identity</span> |
-            <span>Your Opportunity</span> |
+                    <span>Your Opportunity</span> |
             <span>Your Future</span>
         </p>
 

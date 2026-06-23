@@ -6,6 +6,14 @@
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-lg-10">
+            @if(session('success'))
+                <div class="alert alert-success rounded-3 mb-4">{{ session('success') }}</div>
+            @endif
+
+            @if($errors->any())
+                <div class="alert alert-danger rounded-3 mb-4">Please check the details and try again.</div>
+            @endif
+
             <!-- Progress Tracker -->
             <div class="enrollment-tracker mb-5 px-4">
                 <div class="d-flex justify-content-between position-relative">
@@ -31,7 +39,8 @@
 
             <!-- Step Contents -->
             <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-                <div class="card-body p-4 p-md-5">
+                <form action="{{ route('user.enrollment.store', $program->id) }}" method="POST" class="card-body p-4 p-md-5">
+                    @csrf
                     <!-- Step 1: Selected Program -->
                     <div class="enrollment-step-content" id="step-1-content">
                         <h2 class="fw-bold mb-4" style="color: #001F5B;">Step 1: Selected Program</h2>
@@ -39,7 +48,12 @@
                             <h4 class="fw-bold">{{ $program->title }}</h4>
                             <p class="text-dark mb-0" style="line-height: 1.6;">{{ $program->description }}</p>
                         </div>
-                        <button class="btn btn-primary px-5 rounded-pill fw-bold next-step" data-next="2">Continue to Step 2</button>
+                        @if($existingEnrollment)
+                            <div class="alert alert-info rounded-3">You are already enrolled in this program.</div>
+                            <a href="{{ route('user.dashboard') }}" class="btn btn-primary rounded-pill px-5 fw-bold">Go to My Dashboard</a>
+                        @else
+                            <button type="button" class="btn btn-primary px-5 rounded-pill fw-bold next-step" data-next="2">Continue to Step 2</button>
+                        @endif
                     </div>
 
                     <!-- Step 2: Your Details -->
@@ -56,12 +70,12 @@
                             </div>
                             <div class="col-12">
                                 <label class="form-label fw-bold">Motivation / Comments</label>
-                                <textarea class="form-control" rows="4" placeholder="Briefly describe why you want to enroll in this program..."></textarea>
+                                <textarea name="cover_letter" class="form-control" rows="4" placeholder="Briefly describe why you want to enroll in this program...">{{ old('cover_letter') }}</textarea>
                             </div>
                         </div>
                         <div class="mt-5 d-flex gap-2">
-                            <button class="btn btn-light rounded-pill px-4 prev-step" data-prev="1">Back</button>
-                            <button class="btn btn-primary rounded-pill px-5 fw-bold next-step" data-next="3">Proceed to Payment</button>
+                            <button type="button" class="btn btn-light rounded-pill px-4 prev-step" data-prev="1">Back</button>
+                            <button type="button" class="btn btn-primary rounded-pill px-5 fw-bold next-step" data-next="3">Proceed to Payment</button>
                         </div>
                     </div>
 
@@ -74,8 +88,8 @@
                             <p class="small text-muted">A payment gateway interface would be integrated here.</p>
                         </div>
                         <div class="mt-5 d-flex gap-2">
-                            <button class="btn btn-light rounded-pill px-4 prev-step" data-prev="2">Back</button>
-                            <button class="btn btn-primary rounded-pill px-5 fw-bold next-step" data-next="4">Complete Enrollment</button>
+                            <button type="button" class="btn btn-light rounded-pill px-4 prev-step" data-prev="2">Back</button>
+                            <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold">Complete Enrollment</button>
                         </div>
                     </div>
 
@@ -90,7 +104,7 @@
                             <a href="{{ route('user.dashboard') }}" class="btn btn-primary rounded-pill px-5 fw-bold">Go to My Dashboard</a>
                         </div>
                     </div>
-                </div>
+                </form>
             </div>
         </div>
     </div>

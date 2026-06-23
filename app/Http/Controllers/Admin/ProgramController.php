@@ -43,6 +43,8 @@ class ProgramController extends Controller
         }
 
         $allPrograms = $query->latest()->get();
+        $categories = Program::whereNotNull('category')->distinct()->orderBy('category')->pluck('category');
+        $levels = Program::whereNotNull('level')->distinct()->orderBy('level')->pluck('level');
 
         // Categorize programs
         $available = $allPrograms->filter(function($p) {
@@ -75,38 +77,37 @@ class ProgramController extends Controller
             $available = $programs;
         }
 
-        return view('pages.programs', compact('page', 'available', 'comingSoon', 'notAvailable'));
+        return view('pages.programs', compact('page', 'available', 'comingSoon', 'notAvailable', 'categories', 'levels'));
     }
 
     /**
  * Store new Program
  */
-public function store(Request $request)
-{
-    $request->validate([
-        'title' => 'required|string|max:255',
-        'description' => 'required|string',
-        'icon' => 'nullable|string|max:255',
-        'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-    ]);
+    public function store(Request $request)
+    {
+        $data = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'icon' => 'nullable|string|max:255',
+            'category' => 'nullable|string|max:255',
+            'level' => 'nullable|string|max:255',
+            'status' => 'nullable|in:active,inactive,published,unpublished,archived,disabled',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+        ]);
 
-    $imagePath = null;
+        $data['status'] = $data['status'] ?? 'active';
+        $data['is_active'] = in_array($data['status'], ['active', 'published']);
 
-    if ($request->hasFile('image')) {
-        $imagePath = $request->file('image')->store('programs', 'public');
+        if ($request->hasFile('image')) {
+            $data['image'] = $request->file('image')->store('programs', 'public');
+        }
+
+        Program::create($data);
+
+        return redirect()
+            ->back()
+            ->with('success', 'Program created successfully.');
     }
-
-    Program::create([
-        'title' => $request->title,
-        'description' => $request->description,
-        'icon' => $request->icon,
-        'image' => $imagePath,
-    ]);
-
-    return redirect()
-        ->back()
-        ->with('success', 'Program created successfully.');
-}
 
     public function edit()
     {
@@ -163,10 +164,17 @@ public function store(Request $request)
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'icon' => 'nullable|string|max:255',
+            'category' => 'nullable|string|max:255',
+            'level' => 'nullable|string|max:255',
+            'status' => 'nullable|in:active,inactive,published,unpublished,archived,disabled',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
-        $data = $request->only(['title', 'description', 'icon']);
+        $data = $request->only(['title', 'description', 'icon', 'category', 'level', 'status']);
+
+        if (array_key_exists('status', $data)) {
+            $data['is_active'] = in_array($data['status'], ['active', 'published']);
+        }
 
         if ($request->hasFile('image')) {
             if ($program->image) {
@@ -207,6 +215,10 @@ public function store(Request $request)
                 'title' => 'Career Readiness',
                 'description' => 'Build interview confidence, CV quality and workplace behaviours.',
                 'icon' => 'fa-user-tie',
+                'category' => 'Career',
+                'level' => 'Beginner',
+                'status' => 'active',
+                'is_active' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -214,6 +226,10 @@ public function store(Request $request)
                 'title' => 'Digital Skills',
                 'description' => 'Gain practical tools for modern work and AI-enabled productivity.',
                 'icon' => 'fa-laptop-code',
+                'category' => 'Digital',
+                'level' => 'Beginner',
+                'status' => 'active',
+                'is_active' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -221,6 +237,10 @@ public function store(Request $request)
                 'title' => 'Future Skills',
                 'description' => 'Develop problem solving, adaptability and communication.',
                 'icon' => 'fa-lightbulb',
+                'category' => 'Workforce',
+                'level' => 'Intermediate',
+                'status' => 'active',
+                'is_active' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -228,6 +248,10 @@ public function store(Request $request)
                 'title' => 'Leadership',
                 'description' => 'Prepare for team contribution and professional growth.',
                 'icon' => 'fa-chess-king',
+                'category' => 'Leadership',
+                'level' => 'Intermediate',
+                'status' => 'active',
+                'is_active' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -235,6 +259,10 @@ public function store(Request $request)
                 'title' => 'Entrepreneurship',
                 'description' => 'Validate ideas, business models and market pathways.',
                 'icon' => 'fa-rocket',
+                'category' => 'Business',
+                'level' => 'Intermediate',
+                'status' => 'active',
+                'is_active' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -242,6 +270,10 @@ public function store(Request $request)
                 'title' => 'Executive Programs',
                 'description' => 'Institution and employer workforce transformation tracks.',
                 'icon' => 'fa-chart-pie',
+                'category' => 'Executive',
+                'level' => 'Advanced',
+                'status' => 'active',
+                'is_active' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],

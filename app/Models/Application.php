@@ -30,6 +30,11 @@ class Application extends Model
         'reviewed_by',
     ];
 
+    protected $casts = [
+        'reviewed_at' => 'datetime',
+        'submitted_at' => 'datetime',
+    ];
+
     /**
      * Get the user that owns the application.
      */
@@ -42,6 +47,11 @@ class Application extends Model
      * Get the job posting associated with the application.
      */
     public function job(): BelongsTo
+    {
+        return $this->belongsTo(JobPosting::class, 'job_posting_id');
+    }
+
+    public function jobPosting(): BelongsTo
     {
         return $this->belongsTo(JobPosting::class, 'job_posting_id');
     }

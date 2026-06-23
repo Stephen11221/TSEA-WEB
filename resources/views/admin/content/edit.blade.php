@@ -35,6 +35,32 @@
                 </div>
             </div>
 
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                <div class="form-field">
+                    <label style="font-weight: 600; display: block; margin-bottom: 8px;">Category</label>
+                    <input type="text" name="category" value="{{ old('category', $program->category) }}" placeholder="e.g. Digital"
+                           style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px;">
+                </div>
+
+                <div class="form-field">
+                    <label style="font-weight: 600; display: block; margin-bottom: 8px;">Level</label>
+                    <input type="text" name="level" value="{{ old('level', $program->level) }}" placeholder="e.g. Beginner"
+                           style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px;">
+                </div>
+
+                <div class="form-field">
+                    <label style="font-weight: 600; display: block; margin-bottom: 8px;">Status</label>
+                    <select name="status" style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px;">
+                        <option value="active" @selected(old('status', $program->status) === 'active')>Active</option>
+                        <option value="published" @selected(old('status', $program->status) === 'published')>Published</option>
+                        <option value="unpublished" @selected(old('status', $program->status) === 'unpublished')>Coming Soon</option>
+                        <option value="inactive" @selected(old('status', $program->status) === 'inactive')>Inactive</option>
+                        <option value="archived" @selected(old('status', $program->status) === 'archived')>Archived</option>
+                        <option value="disabled" @selected(old('status', $program->status) === 'disabled')>Disabled</option>
+                    </select>
+                </div>
+            </div>
+
             <div class="form-field" style="margin-bottom: 20px;">
                 <label style="font-weight: 600; display: block; margin-bottom: 8px;">Description</label>
                 <textarea name="description" rows="4" required 

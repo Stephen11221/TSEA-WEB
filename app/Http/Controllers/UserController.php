@@ -18,7 +18,7 @@ class UserController extends Controller
     {
         $user = auth()->user();
         $passports = $user->passport; // Assuming a user has one passport
-        $applications = $user->applications()->latest()->take(5)->get(); // Get recent applications
+        $applications = $user->applications()->with(['jobPosting', 'program'])->latest()->take(5)->get(); // Get recent applications
         $unreadNotificationsCount = $user->notifications()->unread()->count(); // Get unread notifications count
         $recommendedPrograms = Program::where('is_active', true)->inRandomOrder()->take(3)->get(); // Fetch some recommended programs
         
@@ -241,6 +241,43 @@ class UserController extends Controller
     public function showEnrollment($id)
     {
         $program = \App\Models\Program::findOrFail($id);
-        return view('enrollment.track', compact('program'));
+        $existingEnrollment = Application::where('user_id', auth()->id())
+            ->where('program_id', $program->id)
+            ->first();
+
+        return view('enrollment.track', compact('program', 'existingEnrollment'));
+    }
+
+    public function storeEnrollment(Request $request, $id)
+    {
+        $program = Program::whereKey($id)
+            ->whereIn('status', ['active', 'published'])
+            ->firstOrFail();
+
+        $validated = $request->validate([
+            'cover_letter' => 'nullable|string|max:5000',
+        ]);
+
+        $existingEnrollment = Application::where('user_id', auth()->id())
+            ->where('program_id', $program->id)
+            ->first();
+
+        if ($existingEnrollment) {
+            return redirect()
+                ->route('user.dashboard')
+                ->with('success', 'You are already enrolled in this program.');
+        }
+
+        Application::create([
+            'user_id' => auth()->id(),
+            'program_id' => $program->id,
+            'cover_letter' => $validated['cover_letter'] ?? null,
+            'status' => 'pending',
+            'submitted_at' => now(),
+        ]);
+
+        return redirect()
+            ->route('user.dashboard')
+            ->with('success', "Enrollment submitted for {$program->title}.");
     }
 }

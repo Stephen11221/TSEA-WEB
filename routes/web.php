@@ -56,6 +56,7 @@ Route::middleware(['auth', 'role:user'])->prefix('user')->name('user.')->control
     Route::put('/profile', 'updateProfile')->name('profile.update');
     Route::get('/change-password', 'changePassword')->name('change-password');
     Route::put('/change-password', 'updatePassword')->name('change-password.update');
+    Route::post('/enrollment/{id}', 'storeEnrollment')->name('enrollment.store');
 });
 
 // Employer Routes

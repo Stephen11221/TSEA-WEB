@@ -75,20 +75,44 @@
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                 <div>
                     <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px;">Title</label>
-                    <input type="text" name="title" required placeholder="e.g. Digital Skills" 
+                    <input type="text" name="title" value="{{ old('title') }}" required placeholder="e.g. Digital Skills" 
                            style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px;">
                 </div>
                 <div>
                     <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px;">FA Icon Class</label>
-                    <input type="text" name="icon" placeholder="fa-laptop-code" 
+                    <input type="text" name="icon" value="{{ old('icon') }}" placeholder="fa-laptop-code" 
                            style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px;">
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                <div>
+                    <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px;">Category</label>
+                    <input type="text" name="category" value="{{ old('category') }}" placeholder="e.g. Digital"
+                           style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px;">
+                </div>
+                <div>
+                    <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px;">Level</label>
+                    <input type="text" name="level" value="{{ old('level') }}" placeholder="e.g. Beginner"
+                           style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px;">
+                </div>
+                <div>
+                    <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px;">Status</label>
+                    <select name="status" style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px;">
+                        <option value="active" @selected(old('status', 'active') === 'active')>Active</option>
+                        <option value="published" @selected(old('status') === 'published')>Published</option>
+                        <option value="unpublished" @selected(old('status') === 'unpublished')>Coming Soon</option>
+                        <option value="inactive" @selected(old('status') === 'inactive')>Inactive</option>
+                        <option value="archived" @selected(old('status') === 'archived')>Archived</option>
+                        <option value="disabled" @selected(old('status') === 'disabled')>Disabled</option>
+                    </select>
                 </div>
             </div>
 
             <div style="margin-bottom: 15px;">
                 <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px;">Description</label>
                 <textarea name="description" required rows="2" 
-                          style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px;"></textarea>
+                          style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px;">{{ old('description') }}</textarea>
             </div>
 
             <div style="margin-bottom: 20px;">

@@ -152,8 +152,8 @@
                 @forelse($applications as $application)
                     <li class="list-group-item">
                         <div>
-                            <strong>{{ $application->jobPosting->title ?? 'N/A' }}</strong>
-                            <p style="font-size: 12px; color: var(--color-text-muted); margin-top: 2px;">Submitted: {{ $application->submitted_at->format('M d, Y') }}</p>
+                            <strong>{{ $application->program->title ?? $application->jobPosting->title ?? 'N/A' }}</strong>
+                            <p style="font-size: 12px; color: var(--color-text-muted); margin-top: 2px;">Submitted: {{ optional($application->submitted_at ?? $application->created_at)->format('M d, Y') }}</p>
                         </div>
                         <span class="badge badge-{{ $application->status }}">{{ ucfirst($application->status) }}</span>
                     </li>
