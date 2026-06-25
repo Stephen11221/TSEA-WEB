@@ -1,0 +1,26 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::table('institution_pages', function (Blueprint $table) {
+            if (! Schema::hasColumn('institution_pages', 'institutions')) {
+                $table->json('institutions')->nullable()->after('benefits');
+            }
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::table('institution_pages', function (Blueprint $table) {
+            if (Schema::hasColumn('institution_pages', 'institutions')) {
+                $table->dropColumn('institutions');
+            }
+        });
+    }
+};

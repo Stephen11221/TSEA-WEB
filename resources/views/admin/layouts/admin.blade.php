@@ -566,6 +566,13 @@
                         </a>
                     </div>
                     <div class="nav-item">
+                        <a href="{{ route('admin.content.institutions') }}"
+                            class="nav-link {{ request()->routeIs('admin.content.institutions*') ? 'active' : '' }}">
+                            <i class="fas fa-school"></i>
+                            <span>Institutions</span>
+                        </a>
+                    </div>
+                    <div class="nav-item">
                         <a href="{{ route('admin.content.contact') }}"
                             class="nav-link {{ request()->routeIs('admin.content.contact*') ? 'active' : '' }}">
                             <i class="fas fa-envelope"></i>

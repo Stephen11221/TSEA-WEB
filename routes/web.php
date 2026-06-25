@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\ContactController;
 use App\Http\Controllers\Admin\EriController;
 use App\Http\Controllers\Admin\EmployerController;
 use App\Http\Controllers\Admin\HomePageController;
+use App\Http\Controllers\Admin\InstitutionController;
 use App\Http\Controllers\Admin\ProgramController;
 use App\Http\Controllers\Admin\WorkforcePassportController;
 use App\Http\Controllers\AdminController;
@@ -19,7 +20,7 @@ Route::get('/workforce-passport', [WorkforcePassportController::class, 'workforc
 Route::get('/eri', [EriController::class, 'index'])->name('eri');
 Route::get('/programs', [ProgramController::class, 'index'])->name('programs');
 Route::view('/employers', 'pages.employers')->name('employers');
-Route::view('/institutions', 'pages.institutions')->name('institutions');
+Route::get('/institutions', [InstitutionController::class, 'index'])->name('institutions');
 Route::view('/workforce-intelligence', 'pages.workforce-intelligence')->name('intelligence');
 Route::get('/contact', [ContactController::class, 'index'])->name('contact');
 Route::post('/contact', [ContactController::class, 'send'])->name('contact.send');
@@ -146,6 +147,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->cont
     Route::post('/content/programs/restore', [ProgramController::class, 'restoreDefaults'])->name('content.program.restore');
     Route::get('/content/contact', [ContactController::class, 'edit'])->name('content.contact');
     Route::post('/content/contact', [ContactController::class, 'update'])->name('content.contact.update');
+    Route::get('/content/institutions', [InstitutionController::class, 'edit'])->name('content.institutions');
+    Route::post('/content/institutions', [InstitutionController::class, 'update'])->name('content.institutions.update');
+    Route::post('/content/institutions/restore', [InstitutionController::class, 'restore'])->name('content.institutions.restore');
     Route::get('/contact-submissions', [ContactController::class, 'submissions'])->name('contact.submissions');
     Route::delete('/contact-submissions/{submission}', [ContactController::class, 'destroySubmission'])->name('contact.submissions.delete');
     Route::post('/content/contact/restore', [ContactController::class, 'restore'])->name('content.contact.restore');
