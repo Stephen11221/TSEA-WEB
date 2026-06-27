@@ -43,8 +43,8 @@ button, input, select, textarea { font: inherit; }
     position: sticky;
     top: 0;
     z-index: 50;
-    background: rgba(255, 255, 255, .94);
-    border-bottom: 1px solid var(--border);
+    background: rgba(11, 29, 51, .96);
+    border-bottom: 1px solid rgba(229, 138, 0, .35);
     backdrop-filter: blur(18px);
 }
 .nav-shell {
@@ -83,26 +83,28 @@ button, input, select, textarea { font: inherit; }
     display: block;
     padding: .6rem .65rem;
     border-radius: 6px;
-    color: #111827;
+    color: rgba(255, 255, 255, .76);
     font-size: .78rem;
     font-weight: 800;
     white-space: nowrap;
 }
-.nav-links a:hover, .nav-links a.active { color: var(--blue); background: rgba(0, 31, 143, .06); }
+.nav-links a:hover, .nav-links a.active { color: #FFC46B; background: rgba(229, 138, 0, .14); }
 .nav-actions { display: flex; align-items: center; gap: .7rem; }
 .profile-button, .nav-toggle {
     width: 42px;
     height: 42px;
-    border: 1px solid var(--border);
+    border: 1px solid rgba(255, 255, 255, .26);
     border-radius: 999px;
     display: inline-grid;
     place-items: center;
-    background: var(--white);
-    color: var(--blue);
+    background: rgba(255, 255, 255, .08);
+    color: var(--white);
 }
 .profile-button i { font-size: 1rem; }
 .nav-toggle { display: none; border-radius: 6px; }
 .nav-toggle i { font-size: 1.05rem; }
+
+.user-name { color: rgba(255, 255, 255, .88); }
 
 .btn {
     display: inline-flex;
@@ -934,8 +936,8 @@ input:focus, select:focus, textarea:focus, button:focus-visible, a:focus-visible
         align-items: stretch;
         flex-direction: column;
         padding: 1rem;
-        background: var(--white);
-        border: 1px solid var(--border);
+        background: #0B1D33;
+        border: 1px solid rgba(229, 138, 0, .35);
         border-radius: var(--radius);
         box-shadow: var(--shadow);
     }

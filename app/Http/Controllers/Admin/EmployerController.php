@@ -41,7 +41,7 @@ class EmployerController extends Controller
             'password' => ['required', 'confirmed', Password::defaults()],
         ]);
 
-        User::create([
+        $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'phone' => $validated['phone'] ?? null,
@@ -49,6 +49,10 @@ class EmployerController extends Controller
             'role' => 'employer',
             'status' => 'active',
             'is_verified' => true,
+        ]);
+
+        $user->employer()->create([
+            'company_name' => $validated['name'],
         ]);
 
         return redirect()->route('admin.employers.index')

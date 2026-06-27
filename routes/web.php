@@ -161,6 +161,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->cont
     Route::get('/content/homepage', [HomePageController::class, 'editHomepage'])->name('content.homepage');
     Route::post('/content/homepage', [HomePageController::class, 'updateHomepage'])->name('content.homepage.update');
     Route::post('/content/homepage/restore', [HomePageController::class, 'restoreHomepage'])->name('content.homepage.restore');
+    Route::get('/content/partners/new', [HomePageController::class, 'newPartner'])->name('content.partner.new');
+    Route::post('/content/partners', [HomePageController::class, 'storePartner'])->name('content.partner.store');
 
    
     // Show About Page form (OPEN PAGE)

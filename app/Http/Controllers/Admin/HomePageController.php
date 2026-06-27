@@ -140,6 +140,42 @@ class HomePageController extends Controller
             ->with('success', 'Homepage content restored successfully.');
     }
 
+    public function newPartner()
+    {
+        $homepage = Homepage::singleton();
+        $homepageContent = $homepage->contentWithDefaults();
+        $partners = Homepage::normalizePartners($homepageContent['impact']['partners'] ?? []);
+
+        return view('admin.content.new-partner', compact('partners'));
+    }
+
+    public function storePartner(Request $request)
+    {
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'logo' => ['required', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:2048'],
+        ]);
+
+        $path = $request->file('logo')->store('partners', 'public');
+
+        $homepage = Homepage::singleton();
+        $content = $homepage->contentWithDefaults();
+        $partners = Homepage::normalizePartners($content['impact']['partners'] ?? []);
+
+        $partners[] = [
+            'name' => trim($data['name']),
+            'logo' => $path,
+        ];
+
+        $content['impact']['partners'] = $partners;
+
+        $homepage->update(['content' => $content]);
+
+        return redirect()
+            ->route('admin.content.homepage')
+            ->with('success', 'Partner added successfully.');
+    }
+
     private function cleanList(array $inputRows, array $defaultRows, array $fields): array
     {
         $rows = [];

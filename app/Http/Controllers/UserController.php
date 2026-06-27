@@ -215,7 +215,11 @@ class UserController extends Controller
      */
     public function applicationsIndex()
     {
-        $applications = auth()->user()->applications()->with('job')->latest()->paginate(10);
+        $applications = auth()->user()->applications()
+            ->with(['job.employer', 'program'])
+            ->latest()
+            ->paginate(12);
+
         return view('user.applications.index', compact('applications'));
     }
 
@@ -240,12 +244,18 @@ class UserController extends Controller
      */
     public function showEnrollment($id)
     {
-        $program = \App\Models\Program::findOrFail($id);
+        $program = Program::whereKey($id)
+            ->whereIn('status', ['active', 'published'])
+            ->firstOrFail();
+
         $existingEnrollment = Application::where('user_id', auth()->id())
             ->where('program_id', $program->id)
+            ->latest()
             ->first();
 
-        return view('enrollment.track', compact('program', 'existingEnrollment'));
+        $initialStep = session('enrollment_completed_program_id') === $program->id ? 4 : 1;
+
+        return view('enrollment.track', compact('program', 'existingEnrollment', 'initialStep'));
     }
 
     public function storeEnrollment(Request $request, $id)
@@ -256,28 +266,31 @@ class UserController extends Controller
 
         $validated = $request->validate([
             'cover_letter' => 'nullable|string|max:5000',
+            'terms_accepted' => 'accepted',
         ]);
 
-        $existingEnrollment = Application::where('user_id', auth()->id())
-            ->where('program_id', $program->id)
-            ->first();
-
-        if ($existingEnrollment) {
-            return redirect()
-                ->route('user.dashboard')
-                ->with('success', 'You are already enrolled in this program.');
-        }
-
-        Application::create([
+        $application = Application::firstOrCreate([
             'user_id' => auth()->id(),
             'program_id' => $program->id,
+        ], [
             'cover_letter' => $validated['cover_letter'] ?? null,
             'status' => 'pending',
             'submitted_at' => now(),
         ]);
 
+        if (!$application->wasRecentlyCreated) {
+            return redirect()
+                ->route('user.enrollment.show', $program->id)
+                ->with('success', 'You are already enrolled in this program.');
+        }
+
+        if (!empty($validated['cover_letter']) && empty($application->cover_letter)) {
+            $application->update(['cover_letter' => $validated['cover_letter']]);
+        }
+
         return redirect()
-            ->route('user.dashboard')
-            ->with('success', "Enrollment submitted for {$program->title}.");
+            ->route('user.enrollment.show', $program->id)
+            ->with('success', "Enrollment submitted for {$program->title}.")
+            ->with('enrollment_completed_program_id', $program->id);
     }
 }

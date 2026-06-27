@@ -122,6 +122,10 @@
         <p class="page-subtitle">Update the text, cards, metrics, buttons and partner labels shown on the public homepage.</p>
     </div>
     <div class="btn-group">
+        <a href="{{ route('admin.content.partner.new') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i>
+            New Partner
+        </a>
         <form method="POST" action="{{ route('admin.content.homepage.restore') }}" onsubmit="return confirm('Restore the homepage to the default TSEA content?')">
             @csrf
             <button type="submit" class="btn btn-secondary">

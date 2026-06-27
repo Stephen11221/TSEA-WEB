@@ -37,7 +37,7 @@
         ['title' => 'Graphic Design', 'icon' => 'fa-paintbrush', 'items' => ['Visual Communication', 'Branding', 'Canva', 'Adobe Tools']],
     ];
 
-    $programCards = $available->take(4)->values();
+    $programCards = $available->values();
 @endphp
 
 <section class="programs-hero">
@@ -54,14 +54,23 @@
 
         <div class="programs-hero-visual" aria-label="TSEA workforce readiness journey">
             <div class="student-cluster">
-                <div class="student-card primary">
-                    <img src="{{ asset('images/logo.jpeg') }}" alt="TSEA">
+                <img class="hero-background-image"
+                    src="{{ asset('images/Home.jpeg') }}"
+                    alt="TSEA">
+
+                <div class="student-card small one">
+                    <i class="fas fa-user-graduate"></i>
                 </div>
-                <div class="student-card small one"><i class="fas fa-user-graduate"></i></div>
-                <div class="student-card small two"><i class="fas fa-wheelchair-move"></i></div>
-                <div class="student-card small three"><i class="fas fa-laptop-code"></i></div>
+
+                <div class="student-card small two">
+                    <i class="fas fa-wheelchair-move"></i>
+                </div>
+
+                <div class="student-card small three">
+                    <i class="fas fa-laptop-code"></i>
+                </div>
             </div>
-        </div>
+       </div>
 
         <aside class="journey-panel">
             <h2>The TSEA Journey</h2>
@@ -116,12 +125,11 @@
                         <span><i class="fas {{ $program->icon ?: $style['icon'] }}"></i></span>
                         <h3>{{ $program->title ?: $style['name'] }}</h3>
                     </div>
-                    <div class="academy-image">
+                    <div class="academy-image {{ !empty($program->image) ? 'has-image' : 'no-image' }}">
                         @if(!empty($program->image))
-                            <img src="{{ asset('storage/' . $program->image) }}" alt="{{ $program->title }}">
-                        @else
-                            <i class="fas {{ $style['icon'] }}"></i>
+                            <img src="{{ asset('storage/' . $program->image) }}" alt="{{ $program->title }}" onerror="this.closest('.academy-image').classList.add('no-image');this.remove();">
                         @endif
+                        <i class="fas {{ $program->icon ?: $style['icon'] }}" aria-hidden="true"></i>
                     </div>
                     <p>{{ \Illuminate\Support\Str::limit($program->description, 95) }}</p>
                     @if(!empty($program->id))
@@ -248,9 +256,9 @@
         z-index: 1;
         display: grid;
         grid-template-columns: minmax(280px, .95fr) minmax(320px, 1fr) 260px;
-        align-items: end;
+        align-items: center;
         gap: 28px;
-        padding: 52px 0 0;
+        padding: 52px 0 24px;
     }
 
     .programs-kicker {
@@ -309,6 +317,12 @@
         font-weight: 900;
         font-size: .9rem;
         border: 1px solid transparent;
+        transition: transform .2s ease, box-shadow .2s ease, background-color .2s ease;
+    }
+
+    .programs-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 22px rgba(0,0,0,.22);
     }
 
     .programs-btn-gold {
@@ -323,22 +337,47 @@
     }
 
     .programs-hero-visual {
-        min-height: 430px;
+        position: relative;
+        min-height: 390px;
         display: grid;
-        align-items: end;
+        align-items: center;
     }
 
     .student-cluster {
-        height: 340px;
+        width: 100%;
+        max-width: 500px;
+        height: 320px;
+        margin-left: auto;
         position: relative;
         display: grid;
         place-items: center;
+        overflow: hidden;
+        border-radius: 20px;
+        box-shadow: 0 25px 60px rgba(0,0,0,.35);
+    }
+
+    .student-cluster:after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(3,17,36,.3), rgba(3,17,36,.05));
+        pointer-events: none;
+    }
+
+    .hero-background-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: right center;
     }
 
     .student-card {
+        position: absolute;
+        z-index: 11;
         border: 1px solid rgba(255,255,255,.22);
         background: linear-gradient(145deg, rgba(255,255,255,.14), rgba(255,255,255,.04));
-        box-shadow: 0 25px 60px rgba(0,0,0,.35);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 16px 36px rgba(0,0,0,.35);
         display: grid;
         place-items: center;
         color: #ffc107;
@@ -360,19 +399,19 @@
 
     .student-card.small {
         position: absolute;
-        width: 96px;
-        height: 118px;
+        width: 88px;
+        height: 106px;
         border-radius: 12px;
-        font-size: 2rem;
+        font-size: 1.75rem;
     }
 
-    .student-card.one { left: 2%; bottom: 22px; color: #fff; }
-    .student-card.two { right: 0; bottom: 6px; color: #5dd489; }
-    .student-card.three { left: 34%; top: 6px; color: #4f8df7; }
+    .student-card.one { left: 3%; bottom: 18px; color: #fff; }
+    .student-card.two { right: 3%; bottom: 18px; color: #5dd489; }
+    .student-card.three { left: 50%; top: 16px; transform: translateX(-50%); color: #4f8df7; }
 
     .journey-panel {
         align-self: center;
-        margin-bottom: 30px;
+        margin-bottom: 0;
         padding: 18px;
         border: 1px solid rgba(255,255,255,.24);
         border-radius: 10px;
@@ -456,8 +495,8 @@
 
     .foundation-grid {
         display: grid;
-        grid-template-columns: 230px repeat(6, minmax(120px, 1fr));
-        gap: 12px;
+        grid-template-columns: 240px repeat(6, minmax(138px, 1fr));
+        gap: 14px;
         align-items: stretch;
     }
 
@@ -490,12 +529,12 @@
 
     .module-card {
         position: relative;
-        min-height: 132px;
+        min-height: 148px;
         background: #fff;
         border: 1px solid #d9e1ea;
         border-radius: 8px;
         box-shadow: 0 12px 28px rgba(15, 23, 42, .08);
-        padding: 14px;
+        padding: 16px;
         overflow: hidden;
     }
 
@@ -521,14 +560,14 @@
     }
 
     .module-card small {
-        font-size: .62rem;
+        font-size: .66rem;
         font-weight: 850;
         margin-bottom: 4px;
     }
 
     .module-card strong {
-        max-width: 78%;
-        font-size: .76rem;
+        max-width: 80%;
+        font-size: .8rem;
         line-height: 1.35;
         font-weight: 950;
     }
@@ -616,6 +655,14 @@
             linear-gradient(135deg, rgba(6,24,46,.72), rgba(6,24,46,.15)),
             repeating-linear-gradient(90deg, #dbeafe 0 2px, #f8fafc 2px 14px);
         overflow: hidden;
+    }
+
+    .academy-image.has-image i {
+        display: none;
+    }
+
+    .academy-image.no-image i {
+        display: block;
     }
 
     .academy-image img {
@@ -793,6 +840,7 @@
         .programs-hero-grid {
             grid-template-columns: 1fr;
             padding-bottom: 28px;
+            gap: 20px;
         }
 
         .programs-hero-visual {
@@ -801,6 +849,7 @@
 
         .student-cluster {
             height: 260px;
+            margin: 0 auto;
         }
 
         .journey-panel {
@@ -830,10 +879,16 @@
         .programs-hero-grid {
             min-height: 0;
             padding-top: 24px;
+            gap: 16px;
         }
 
         .programs-hero h1 {
             font-size: 2.45rem;
+        }
+
+        .programs-hero p {
+            line-height: 1.65;
+            font-size: .95rem;
         }
 
         .programs-actions,
@@ -878,6 +933,15 @@
         .student-card.small {
             width: 74px;
             height: 90px;
+            font-size: 1.35rem;
+        }
+
+        .journey-panel {
+            padding: 14px;
+        }
+
+        .journey-row strong {
+            font-size: .74rem;
         }
     }
 </style>

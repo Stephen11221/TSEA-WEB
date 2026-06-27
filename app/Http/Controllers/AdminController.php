@@ -5,11 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Program;
 use App\Models\JobPosting;
-use App\Models\Course;
 use App\Models\Application;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller
 {
@@ -29,11 +29,9 @@ class AdminController extends Controller
             ->whereYear('created_at', now()->year)
             ->count();
         
-        // Jobs, Courses, and Applications Statistics
+        // Jobs and Applications Statistics
         $totalJobs = JobPosting::count();
         $activeJobs = JobPosting::where('status', 'open')->count();
-        $totalCourses = Course::count();
-        $activeCourses = Course::where('status', '!=', 'draft')->count();
         $totalApplications = Application::count();
         $pendingApplications = Application::where('status', 'pending')->count();
         
@@ -97,8 +95,6 @@ class AdminController extends Controller
             'newUsersThisMonth' => $newUsersThisMonth,
             'totalJobs' => $totalJobs,
             'activeJobs' => $activeJobs,
-            'totalCourses' => $totalCourses,
-            'activeCourses' => $activeCourses,
             'totalApplications' => $totalApplications,
             'pendingApplications' => $pendingApplications,
             'totalPrograms' => $totalPrograms,
@@ -143,7 +139,7 @@ class AdminController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
-            'role' => 'required|in:admin,user,employer,instructor',
+            'role' => 'required|in:admin,employer,student,instructor,user',
         ]);
 
         $user->update($validated);
