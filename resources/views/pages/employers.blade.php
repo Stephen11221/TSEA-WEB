@@ -3,6 +3,25 @@
 
 @section('content')
 @php
+    $allEmployersCount = \App\Models\User::where('role', 'employer')->count();
+    $activeEmployersCount = \App\Models\User::where('role', 'employer')->where('status', 'active')->count();
+    $openJobsCount = \App\Models\JobPosting::where('status', 'open')->count();
+    $jobsWithApplicationsCount = \App\Models\Application::whereNotNull('job_posting_id')->distinct('job_posting_id')->count('job_posting_id');
+    $activeProgramsCount = \App\Models\Program::whereIn('status', ['active', 'published'])->where('is_active', true)->count();
+    $allProgramsCount = max(1, \App\Models\Program::count());
+
+    $activeEmployerRate = round(($activeEmployersCount / max(1, $allEmployersCount)) * 100, 1);
+    $openJobsCoverageRate = round(($openJobsCount / max(1, $activeEmployersCount)) * 100, 1);
+    $applicationConversionRate = round(($jobsWithApplicationsCount / max(1, $openJobsCount)) * 100, 1);
+    $programAlignmentRate = round(($activeProgramsCount / $allProgramsCount) * 100, 1);
+
+    $readinessBars = [
+        'Active Employers' => min(100, $activeEmployerRate),
+        'Open Jobs Coverage' => min(100, $openJobsCoverageRate),
+        'Jobs With Applications' => min(100, $applicationConversionRate),
+        'Program Alignment' => min(100, $programAlignmentRate),
+    ];
+
     $employerPartners = \App\Models\User::where('role', 'employer')
         ->where('status', 'active')
         ->latest()
@@ -26,12 +45,7 @@
 
         <aside class="card emp-panel">
             <h2>Talent Readiness Index</h2>
-            @include('partials.charts', ['type' => 'bars', 'items' => [
-                'Digital Skills' => 88,
-                'Technical Proficiency' => 79,
-                'Soft Skills' => 92,
-                'Market Alignment' => 81
-            ]])
+            @include('partials.charts', ['type' => 'bars', 'items' => $readinessBars])
         </aside>
     </div>
 </section>

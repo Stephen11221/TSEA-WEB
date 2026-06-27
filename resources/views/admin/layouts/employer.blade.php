@@ -113,7 +113,7 @@
                     <i class="fas fa-user-graduate"></i> Applications
                 </a>
                 <div class="nav-divider"></div>
-                <form action="{{ route('logout') }}" method="POST" class="mt-auto"> {{-- Added mt-auto for consistent spacing --}}
+                <form action="{{ route('logout') }}" method="POST" target="_self" class="mt-auto"> {{-- Added mt-auto for consistent spacing --}}
                     @csrf
                     <button type="submit" class="nav-item text-danger bg-transparent border-0 w-100 text-start">
                         <i class="fas fa-sign-out-alt"></i> Logout

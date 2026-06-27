@@ -44,7 +44,7 @@
                     <li><a href="{{ route('user.profile') }}">View Profile</a></li>
                     <li><a href="{{ route('admin.change-password') }}">Change Password</a></li>
                     <li>
-                        <form action="{{ route('logout') }}" method="POST" style="display: inline;">
+                        <form action="{{ route('logout') }}" method="POST" target="_self" style="display: inline;">
                             @csrf
                             <button type="submit" class="btn-link">Logout</button>
                         </form>

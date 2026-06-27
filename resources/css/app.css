@@ -878,9 +878,12 @@ input:focus, select:focus, textarea:focus, button:focus-visible, a:focus-visible
 .line-chart { padding: .7rem; }
 .line-chart svg { width: 100%; height: 170px; }
 .bar-chart { padding: 1rem; display: grid; align-content: center; gap: .8rem; }
-.bar-chart div { display: grid; grid-template-columns: minmax(120px, .8fr) 1fr; align-items: center; gap: .8rem; font-size: .82rem; font-weight: 800; color: #334155; }
+.bar-chart div { display: grid; grid-template-columns: minmax(120px, .8fr) minmax(0, 1fr) auto; align-items: center; gap: .8rem; font-size: .82rem; font-weight: 800; color: #334155; }
 .bar-chart i { height: 9px; border-radius: 999px; background: #DDE5F4; overflow: hidden; }
-.bar-chart b { height: 100%; display: block; border-radius: inherit; background: linear-gradient(90deg, var(--blue), var(--green)); }
+.bar-chart b { width: var(--bar-width, 0%); height: 100%; display: block; border-radius: inherit; background: linear-gradient(90deg, var(--blue), var(--green)); }
+.bar-chart small { font-size: .76rem; color: #1f2937; font-weight: 900; min-width: 42px; text-align: right; }
+.chart-legend { margin-top: .55rem; display: flex; flex-wrap: wrap; gap: .45rem; }
+.chart-legend small { display: inline-flex; align-items: center; min-height: 24px; padding: .2rem .5rem; border-radius: 999px; border: 1px solid #dbe3ef; background: #f8fafc; color: #334155; font-size: .72rem; font-weight: 800; }
 .radar-chart {
     position: relative;
     display: grid;

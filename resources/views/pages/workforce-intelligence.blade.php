@@ -19,44 +19,59 @@
 
     $programCount = $activePrograms->count();
     $categoryGroups = $activePrograms->groupBy(fn ($program) => $program->category ?: 'General');
+    $categoryStats = $categoryGroups->map(function ($programs, $category) use ($programCount) {
+        $count = $programs->count();
+        $share = round(($count / max(1, $programCount)) * 100, 1);
+
+        return [
+            'name' => $category,
+            'count' => $count,
+            'share' => $share,
+            'skills' => $programs->pluck('title')->take(3)->values()->toArray(),
+        ];
+    })->sortByDesc('share')->values();
+
     $topCategory = (string) $categoryGroups
         ->sortByDesc(fn ($items) => $items->count())
         ->keys()
         ->first();
     $topCategoryCount = (int) ($categoryGroups->get($topCategory)?->count() ?? 1);
+    $topCategoryShare = round(($topCategoryCount / max(1, $programCount)) * 100, 1);
 
-    $sectorDemand = $categoryGroups->map(function ($programs, $category) use ($programCount) {
-        $count = $programs->count();
-        $score = min(95, 58 + ($count * 9) + max(0, $programCount - 4));
-        $signal = $score >= 85 ? 'Very High' : ($score >= 75 ? 'High' : 'Rising');
+    $sectorDemand = $categoryStats->map(function ($stat) {
+        $signal = $stat['share'] >= 40 ? 'Very High' : ($stat['share'] >= 25 ? 'High' : 'Rising');
 
         return [
-            'name' => $category,
-            'score' => (int) $score,
-            'vacancies' => ($count * 220) + 320,
+            'name' => $stat['name'],
+            'score' => $stat['share'],
+            'count' => $stat['count'],
             'signal' => $signal,
-            'skills' => $programs->pluck('title')->take(3)->values()->toArray(),
+            'skills' => $stat['skills'],
         ];
     })->values()->take(6)->toArray();
 
-    $avgDemand = (int) round(collect($sectorDemand)->avg('score') ?: 72);
-    $regionalBase = max(62, min(92, $avgDemand));
+    $avgDemand = round(collect($sectorDemand)->avg('score') ?: 0, 1);
     $regionRoles = $activePrograms->pluck('title')->take(3)->values()->toArray();
+    $regionalShares = collect($sectorDemand)->pluck('score')->pad(4, $avgDemand)->values();
+    $regionalGrowth = collect($sectorDemand)->pluck('count')->pad(4, 0)->values();
 
     $regions = [
-        ['code' => 'EA', 'name' => 'East Africa', 'opportunity' => min(96, $regionalBase + 6), 'growth' => '+' . number_format(($programCount * 0.45) + 2.1, 1) . '%', 'focus' => 'Tech-enabled services and startup ecosystems', 'roles' => $regionRoles],
-        ['code' => 'WA', 'name' => 'West Africa', 'opportunity' => min(94, $regionalBase + 2), 'growth' => '+' . number_format(($programCount * 0.35) + 1.9, 1) . '%', 'focus' => 'Fintech operations and digital commerce', 'roles' => array_reverse($regionRoles)],
-        ['code' => 'SA', 'name' => 'Southern Africa', 'opportunity' => max(60, $regionalBase - 2), 'growth' => '+' . number_format(($programCount * 0.25) + 1.6, 1) . '%', 'focus' => 'Enterprise transformation and shared services', 'roles' => $regionRoles],
-        ['code' => 'NA', 'name' => 'North Africa', 'opportunity' => max(58, $regionalBase - 4), 'growth' => '+' . number_format(($programCount * 0.2) + 1.4, 1) . '%', 'focus' => 'BPO, logistics intelligence and multilingual support', 'roles' => array_reverse($regionRoles)],
+        ['code' => 'EA', 'name' => 'East Africa', 'opportunity' => $regionalShares[0], 'growth' => '+' . number_format(($regionalGrowth[0] / max(1, $programCount)) * 100, 1) . '%', 'focus' => 'Top mapped category concentration from active programs', 'roles' => $regionRoles],
+        ['code' => 'WA', 'name' => 'West Africa', 'opportunity' => $regionalShares[1], 'growth' => '+' . number_format(($regionalGrowth[1] / max(1, $programCount)) * 100, 1) . '%', 'focus' => 'Top mapped category concentration from active programs', 'roles' => array_reverse($regionRoles)],
+        ['code' => 'SA', 'name' => 'Southern Africa', 'opportunity' => $regionalShares[2], 'growth' => '+' . number_format(($regionalGrowth[2] / max(1, $programCount)) * 100, 1) . '%', 'focus' => 'Top mapped category concentration from active programs', 'roles' => $regionRoles],
+        ['code' => 'NA', 'name' => 'North Africa', 'opportunity' => $regionalShares[3], 'growth' => '+' . number_format(($regionalGrowth[3] / max(1, $programCount)) * 100, 1) . '%', 'focus' => 'Top mapped category concentration from active programs', 'roles' => array_reverse($regionRoles)],
     ];
 
     $topRegion = collect($regions)->sortByDesc('opportunity')->first();
+    $publishedShare = round(($activePrograms->where('status', 'published')->count() / max(1, $programCount)) * 100, 1);
+    $withImageShare = round(($activePrograms->filter(fn ($program) => !empty($program->image))->count() / max(1, $programCount)) * 100, 1);
 
     $kpis = [
         ['label' => 'Active Programs', 'value' => $programCount, 'unit' => '', 'delta' => 'Live from program portfolio', 'tone' => 'up'],
-        ['label' => 'Skills Demand Index', 'value' => $avgDemand, 'unit' => '', 'delta' => $topCategory . ' leads current demand', 'tone' => 'up'],
-        ['label' => 'Top Category Share', 'value' => (int) round($topCategoryCount / max(1, $programCount) * 100), 'unit' => '%', 'delta' => 'Distribution across active tracks', 'tone' => 'up'],
-        ['label' => 'Regional Opportunity', 'value' => $topRegion['opportunity'], 'unit' => '', 'delta' => $topRegion['name'] . ' strongest this cycle', 'tone' => 'up'],
+        ['label' => 'Published Program Share', 'value' => $publishedShare, 'unit' => '%', 'delta' => 'Published status ratio from DB', 'tone' => 'up'],
+        ['label' => 'Top Category Share', 'value' => $topCategoryShare, 'unit' => '%', 'delta' => $topCategory . ' leads current demand', 'tone' => 'up'],
+        ['label' => 'Program Image Coverage', 'value' => $withImageShare, 'unit' => '%', 'delta' => 'Programs with uploaded images', 'tone' => 'up'],
+        ['label' => 'Regional Opportunity Share', 'value' => $topRegion['opportunity'], 'unit' => '%', 'delta' => $topRegion['name'] . ' strongest this cycle', 'tone' => 'up'],
     ];
 
     $recommendations = [
@@ -65,11 +80,9 @@
         ['title' => 'Increase Region-Specific Pathways', 'text' => 'Align top tracks to ' . $topRegion['name'] . ' opportunity trends for stronger readiness-to-role conversion.'],
     ];
 
-    $skillBars = $activePrograms
-        ->pluck('title')
+    $skillBars = $categoryStats
         ->take(5)
-        ->values()
-        ->mapWithKeys(fn ($title, $index) => [$title => max(62, min(95, $avgDemand + (8 - ($index * 4))))])
+        ->mapWithKeys(fn ($stat) => [$stat['name'] => $stat['share']])
         ->toArray();
 
     $lastUpdated = now()->format('d M Y, H:i');
@@ -99,7 +112,7 @@
                 </div>
                 <div>
                     <span>Avg Demand</span>
-                    <strong>{{ $avgDemand }}</strong>
+                    <strong>{{ $avgDemand }}%</strong>
                 </div>
                 <div>
                     <span>Growth Signal</span>
@@ -107,7 +120,7 @@
                 </div>
                 <div>
                     <span>Regional Score</span>
-                    <strong>{{ $topRegion['opportunity'] }}</strong>
+                    <strong>{{ $topRegion['opportunity'] }}%</strong>
                 </div>
             </div>
             <div class="wi-mini-chart">
@@ -160,11 +173,11 @@
                             <strong>{{ $sector['name'] }}</strong>
                             <span>{{ $sector['signal'] }}</span>
                         </div>
-                        <small>{{ number_format($sector['vacancies']) }} active opportunities</small>
+                        <small>{{ $sector['count'] }} programs | {{ $sector['score'] }}% share</small>
                         <div class="wi-meter" aria-hidden="true">
                             <progress value="{{ $sector['score'] }}" max="100"></progress>
                         </div>
-                        <p>Demand Score: {{ $sector['score'] }}</p>
+                        <p>Demand Score: {{ $sector['score'] }}%</p>
                         <ul>
                             @foreach($sector['skills'] as $skill)
                                 <li>{{ $skill }}</li>
@@ -197,7 +210,7 @@
                 <h3>{{ $regions[0]['name'] }}</h3>
                 <p>{{ $regions[0]['focus'] }}</p>
                 <div class="wi-region-metrics">
-                    <span>Opportunity <strong>{{ $regions[0]['opportunity'] }}</strong></span>
+                    <span>Opportunity <strong>{{ $regions[0]['opportunity'] }}%</strong></span>
                     <span>Growth <strong>{{ $regions[0]['growth'] }}</strong></span>
                 </div>
                 <ul id="regionRoles">
@@ -644,7 +657,7 @@
 
             const metrics = detailBox.querySelectorAll('.wi-region-metrics strong');
             if (metrics.length >= 2) {
-                metrics[0].textContent = data.opportunity;
+                metrics[0].textContent = data.opportunity + '%';
                 metrics[1].textContent = data.growth;
             }
 

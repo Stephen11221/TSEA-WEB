@@ -187,20 +187,20 @@
             <h2>{{ $homepageContent['impact']['title'] }}</h2>
         </div>
 
-        <div class="metrics-row compact">
+        <div class="metrics-row compact homex-impact-metrics">
             @foreach ($impactMetrics as $metric)
                 @include('partials.metric-card', ['value' => $metric['value'], 'label' => $metric['label']])
             @endforeach
         </div>
 
         <h3 class="homex-partner-heading">Partners</h3>
-        <div class="partner-strip" aria-label="Trusted partners">
+        <div class="partner-strip homex-partner-strip" id="homePartners" aria-label="Trusted partners">
             @foreach ($partnerItems as $partner)
                 @php
                     $logo = trim((string) ($partner['logo'] ?? ''));
                     $logoSrc = \Illuminate\Support\Str::startsWith($logo, ['http://', 'https://', '/']) ? $logo : ($logo ? asset('storage/' . $logo) : '');
                 @endphp
-                <article class="partner-logo-card homex-partner-card">
+                <article @class(['partner-logo-card', 'homex-partner-card', 'partner-hidden' => $loop->index >= 4])>
                     @if ($logoSrc)
                         <img src="{{ $logoSrc }}" alt="{{ $partner['name'] }} logo">
                     @else
@@ -212,6 +212,11 @@
                 </article>
             @endforeach
         </div>
+        @if ($partnerItems->count() > 4)
+            <button type="button" class="btn btn-secondary btn-sm homex-partner-toggle" id="togglePartners" aria-expanded="false" aria-controls="homePartners">
+                Expand Partners
+            </button>
+        @endif
     </div>
 </section>
 
@@ -560,6 +565,12 @@
         color: #fff;
     }
 
+    .homex-impact-metrics {
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        grid-auto-flow: column;
+        max-width: none;
+    }
+
     .homex-partner-card {
         background: rgba(255, 255, 255, .08);
         border-color: rgba(255, 255, 255, .2);
@@ -571,12 +582,49 @@
     }
 
     .homex-partner-heading {
-        margin: 1rem 0 .65rem;
+        margin: 1.35rem 0 .9rem;
         color: #f8fafc;
         font-size: .95rem;
         text-transform: uppercase;
         letter-spacing: .05em;
         font-weight: 900;
+        position: relative;
+        padding: .85rem .35rem 0;
+    }
+
+    .homex-partner-heading::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        height: 2px;
+        border-radius: 999px;
+        background: linear-gradient(90deg, #ffffff 0%, #f8b84d 48%, #ffffff 100%);
+        background-size: 220% 100%;
+        animation: homexPartnerTopLine 2.6s linear infinite;
+    }
+
+    .homex-partner-strip {
+        margin-top: .55rem;
+        padding-top: .35rem;
+    }
+
+    .homex-partner-strip .partner-hidden {
+        display: none;
+    }
+
+    .homex-partner-strip.expanded .partner-hidden {
+        display: grid;
+    }
+
+    .homex-partner-toggle {
+        margin-top: .75rem;
+    }
+
+    @keyframes homexPartnerTopLine {
+        0% { background-position: 0% 50%; }
+        100% { background-position: 220% 50%; }
     }
 
     @media (max-width: 1120px) {
@@ -608,4 +656,20 @@
         }
     }
 </style>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const partnerGrid = document.getElementById('homePartners');
+        const toggleButton = document.getElementById('togglePartners');
+
+        if (!partnerGrid || !toggleButton) {
+            return;
+        }
+
+        toggleButton.addEventListener('click', function () {
+            const expanded = partnerGrid.classList.toggle('expanded');
+            toggleButton.textContent = expanded ? 'Collapse Partners' : 'Expand Partners';
+            toggleButton.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+        });
+    });
+</script>
 @endsection

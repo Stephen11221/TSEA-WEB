@@ -2,6 +2,34 @@
 @section('title', 'Workforce Passport™ - TSEA')
 
 @section('content')
+@php
+    $activePrograms = \App\Models\Program::query()
+        ->whereIn('status', ['active', 'published'])
+        ->where('is_active', true)
+        ->get();
+
+    $categoryShares = $activePrograms
+        ->groupBy(fn ($program) => $program->category ?: 'General')
+        ->map(fn ($items, $category) => [
+            'name' => $category,
+            'share' => round(($items->count() / max(1, $activePrograms->count())) * 100, 1),
+        ])
+        ->sortByDesc('share')
+        ->values();
+
+    $passportScore = (float) ($categoryShares->avg('share') ?: 80.0);
+    $skillItems = $categoryShares->take(5)->mapWithKeys(fn ($row) => [$row['name'] => $row['share']])->toArray();
+
+    if (empty($skillItems)) {
+        $skillItems = [
+            'Technology' => 90.0,
+            'Commercial' => 85.0,
+            'Digital Economy' => 80.0,
+            'Professional' => 75.0,
+            'General' => 70.0,
+        ];
+    }
+@endphp
 <section class="wfp-lite-hero">
     <div class="container split">
         <div>
@@ -12,14 +40,14 @@
         </div>
         <article class="card passport-profile wfp-lite-card">
             <div class="profile-row"><span class="avatar large"></span><div><strong>Jane Mwangi</strong><small>Nairobi, Kenya</small></div></div>
-            <div class="passport-score">@include('partials.charts', ['type' => 'gauge', 'score' => 82])</div>
+            <div class="passport-score">@include('partials.charts', ['type' => 'gauge', 'score' => round($passportScore, 1)])</div>
         </article>
     </div>
 </section>
 
 <section class="section wfp-lite-board">
     <div class="container dashboard-grid">
-        <article class="card wide-card"><h2>Verified Skills</h2>@include('partials.charts', ['type' => 'bars', 'items' => ['Digital Literacy' => 92, 'Communication' => 84, 'Problem Solving' => 78, 'Leadership' => 72, 'Adaptability' => 88]])</article>
+        <article class="card wide-card"><h2>Verified Skills</h2>@include('partials.charts', ['type' => 'bars', 'items' => $skillItems])</article>
         <article class="card"><h2>Credentials</h2><ul class="check-list"><li>National ID verified</li><li>Diploma credential verified</li><li>Digital skills badge issued</li><li>Work experience endorsed</li></ul></article>
         <article class="card"><h2>Readiness Indicators</h2><div class="status-list"><span>Career ready</span><span>Interview ready</span><span>Opportunity matched</span></div></article>
         <article class="card wide-card"><h2>Passport Benefits</h2><div class="grid three tight"><div>Verified Identity</div><div>Verified Skills</div><div>Verified Credentials</div><div>Verified Experience</div><div>Verified Readiness</div><div>Verified Opportunities</div></div></article>

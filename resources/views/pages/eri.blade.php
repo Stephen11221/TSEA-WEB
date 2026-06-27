@@ -3,6 +3,9 @@
 @section('title', 'ERI™ - TSEA')
 
 @section('content')
+@php
+    $eriScore = round((float) ($eri->eri_score ?? 0), 1);
+@endphp
 <section class="eri-hero">
     <div class="container eri-hero-grid">
         <div class="eri-copy">
@@ -19,7 +22,7 @@
             <h2>Your ERI™ Score</h2>
             @include('partials.charts', [
                 'type' => 'gauge',
-                'score' => $eri->eri_score,
+                'score' => $eriScore,
                 'label' => $eri->score_label
             ])
             <p>{{ $eri->score_message }}</p>
@@ -36,8 +39,12 @@
             </div>
             <div class="metrics-row compact">
                 @foreach($eri->competencies ?? [] as $competency)
+                    @php
+                        $competencyValue = trim((string) ($competency['value'] ?? '0'));
+                        $competencyValue = str_contains($competencyValue, '%') ? $competencyValue : ($competencyValue . '%');
+                    @endphp
                     @include('partials.metric-card', [
-                        'value' => $competency['value'],
+                        'value' => $competencyValue,
                         'label' => $competency['label']
                     ])
                 @endforeach

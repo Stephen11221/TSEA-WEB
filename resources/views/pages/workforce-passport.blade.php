@@ -3,11 +3,32 @@
 
 @section('content')
 @php
+    $activePrograms = \App\Models\Program::query()
+        ->whereIn('status', ['active', 'published'])
+        ->where('is_active', true)
+        ->get();
+
+    $categoryShares = $activePrograms
+        ->groupBy(fn ($program) => $program->category ?: 'General')
+        ->map(fn ($items) => round(($items->count() / max(1, $activePrograms->count())) * 100, 1))
+        ->sortDesc()
+        ->values();
+
+    $fallbackScores = [
+        $categoryShares->get(0, 88.0),
+        $categoryShares->get(1, 82.0),
+        $categoryShares->get(2, 76.0),
+        $categoryShares->get(3, 72.0),
+        $categoryShares->get(4, 68.0),
+    ];
+
     $skills = [];
     for ($i = 1; $i <= 5; $i++) {
         $name = $passport->{'skill_name_'.$i} ?: ['Digital Literacy', 'Communication', 'Problem Solving', 'Leadership', 'Adaptability'][$i - 1];
-        $skills[$name] = $passport->{'skill_score_'.$i} ?: [92, 84, 78, 72, 88][$i - 1];
+        $skills[$name] = round((float) ($passport->{'skill_score_'.$i} ?: $fallbackScores[$i - 1]), 1);
     }
+
+    $passportScore = round((float) ($passport->passport_score ?: collect($skills)->avg()), 1);
 @endphp
 
 <section class="wfp-hero">
@@ -28,7 +49,7 @@
                 </div>
             </div>
             <div class="passport-score">
-                @include('partials.charts', ['type' => 'gauge', 'score' => $passport->passport_score ?? 82])
+                @include('partials.charts', ['type' => 'gauge', 'score' => $passportScore])
             </div>
         </article>
     </div>

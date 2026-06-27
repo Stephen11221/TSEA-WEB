@@ -5,6 +5,18 @@
 @php
     $institutions = $institution->institutions ?? [];
     $categories = collect($institutions)->pluck('category')->filter()->unique()->values();
+
+    $institutionCount = max(1, count($institutions));
+    $withLogoRate = round((collect($institutions)->filter(fn ($item) => !empty(trim((string) ($item['logo'] ?? ''))))->count() / $institutionCount) * 100, 1);
+    $withCategoryRate = round((collect($institutions)->filter(fn ($item) => !empty(trim((string) ($item['category'] ?? ''))))->count() / $institutionCount) * 100, 1);
+    $withLocationRate = round((collect($institutions)->filter(fn ($item) => !empty(trim((string) ($item['location'] ?? ''))))->count() / $institutionCount) * 100, 1);
+    $withStudentDataRate = round((collect($institutions)->filter(fn ($item) => !empty(trim((string) ($item['students'] ?? ''))))->count() / $institutionCount) * 100, 1);
+
+    $trendSource = collect($institution->trend_items ?? []);
+    $trendMax = max(1, (float) ($trendSource->max() ?? 1));
+    $trendPercentItems = $trendSource->mapWithKeys(function ($value, $label) use ($trendMax) {
+        return [$label => round(((float) $value / $trendMax) * 100, 1)];
+    })->toArray();
 @endphp
 
 <style>
@@ -949,20 +961,20 @@
 
             <div class="institutions-stats" aria-label="Institution network statistics">
                 <div class="institution-stat">
-                    <strong>500+</strong>
-                    <span>Institutions</span>
+                    <strong>{{ $withLogoRate }}%</strong>
+                    <span>Logo Coverage</span>
                 </div>
                 <div class="institution-stat">
-                    <strong>1M+</strong>
-                    <span>Students</span>
+                    <strong>{{ $withCategoryRate }}%</strong>
+                    <span>Category Coverage</span>
                 </div>
                 <div class="institution-stat">
-                    <strong>5,000+</strong>
-                    <span>Employers</span>
+                    <strong>{{ $withLocationRate }}%</strong>
+                    <span>Location Coverage</span>
                 </div>
                 <div class="institution-stat">
-                    <strong>95%</strong>
-                    <span>Graduate Readiness</span>
+                    <strong>{{ $withStudentDataRate }}%</strong>
+                    <span>Student Data Coverage</span>
                 </div>
             </div>
         </div>
@@ -1027,7 +1039,11 @@
 <section class="section">
     <div class="container dashboard-grid">
         @foreach($institution->metrics ?? [] as $metric)
-            @include('partials.metric-card', ['value' => $metric['value'] ?? '', 'label' => $metric['label'] ?? ''])
+            @php
+                $metricValue = trim((string) ($metric['value'] ?? ''));
+                $metricValue = ($metricValue !== '' && is_numeric(str_replace(',', '', $metricValue)) && !str_contains($metricValue, '%')) ? ($metricValue . '%') : $metricValue;
+            @endphp
+            @include('partials.metric-card', ['value' => $metricValue, 'label' => $metric['label'] ?? ''])
         @endforeach
 
         <article class="card wide-card">
@@ -1037,7 +1053,7 @@
 
         <article class="card">
             <h2>{{ $institution->trend_title }}</h2>
-            @include('partials.charts', ['type' => 'bars', 'items' => $institution->trend_items ?? []])
+            @include('partials.charts', ['type' => 'bars', 'items' => $trendPercentItems])
         </article>
 
         <article class="card wide-card">

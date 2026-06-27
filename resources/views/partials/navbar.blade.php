@@ -38,7 +38,7 @@
                         @else
                             <a class="btn btn-primary btn-sm" href="{{ route('user.dashboard') }}">Student Dashboard</a>
                         @endif
-                        <form action="{{ route('logout') }}" method="POST" style="display: inline;">
+                        <form action="{{ route('logout') }}" method="POST" target="_self" style="display: inline;">
                             @csrf
                             <button type="submit" class="btn btn-secondary btn-sm">Logout</button>
                         </form>
