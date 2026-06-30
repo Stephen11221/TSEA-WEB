@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Employer;
 use App\Http\Controllers\Controller;
 use App\Models\Application;
 use App\Models\JobPosting;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -199,7 +200,7 @@ class JobPostingController extends Controller
      */
     public function profile()
     {
-        return view('employer.profile.show', ['user' => auth()->user()]);
+        return view('employer.profile.show', ['user' => Auth::user()]);
     }
 
     /**
@@ -207,7 +208,7 @@ class JobPostingController extends Controller
      */
     public function editProfile()
     {
-        return view('profile.edit', ['user' => auth()->user()]);
+        return view('profile.edit', ['user' => Auth::user()]);
     }
 
     /**
@@ -217,11 +218,16 @@ class JobPostingController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . auth()->id(),
+            'email' => 'required|email|unique:users,email,' . Auth::id(),
             'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        $user = auth()->user();
+        /** @var User|null $user */
+        $user = Auth::user();
+        if (!$user) {
+            abort(403);
+        }
+
         $user->update($validated);
 
         if ($request->hasFile('avatar')) {
@@ -250,7 +256,13 @@ class JobPostingController extends Controller
             'password' => 'required|string|min:8|confirmed',
         ]);
 
-        auth()->user()->update([
+        /** @var User|null $user */
+        $user = Auth::user();
+        if (!$user) {
+            abort(403);
+        }
+
+        $user->update([
             'password' => Hash::make($validated['password']),
         ]);
 

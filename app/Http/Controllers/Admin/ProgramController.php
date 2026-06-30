@@ -11,6 +11,27 @@ use Illuminate\Support\Facades\Storage;
 class ProgramController extends Controller
 {
     /**
+     * Shared icon options used in admin forms.
+     */
+    private function programIconOptions(): array
+    {
+        return [
+            'fa-laptop-code' => 'Technology',
+            'fa-chart-line' => 'Digital Economy',
+            'fa-handshake' => 'Commercial Excellence',
+            'fa-user-tie' => 'Professional Excellence',
+            'fa-chart-simple' => 'Data Analytics',
+            'fa-shield-halved' => 'Cybersecurity',
+            'fa-code' => 'Software Development',
+            'fa-microchip' => 'AI & Prompt Engineering',
+            'fa-bullhorn' => 'Digital Marketing',
+            'fa-paintbrush' => 'Graphic Design',
+            'fa-briefcase' => 'Workplace Application',
+            'fa-graduation-cap' => 'General Program',
+        ];
+    }
+
+    /**
      * Show Programs Dashboard
      */
     public function index(Request $request)
@@ -121,11 +142,12 @@ class ProgramController extends Controller
         );
 
         $allPrograms = Program::latest()->get();
+        $iconOptions = $this->programIconOptions();
         
         $publishedPrograms = $allPrograms->filter(fn($p) => in_array($p->status, ['active', 'published']));
         $hiddenPrograms = $allPrograms->filter(fn($p) => !in_array($p->status, ['active', 'published']));
 
-        return view('admin.content.program', compact('page', 'publishedPrograms', 'hiddenPrograms'));
+        return view('admin.content.program', compact('page', 'publishedPrograms', 'hiddenPrograms', 'iconOptions'));
     }
 
 
@@ -155,7 +177,9 @@ class ProgramController extends Controller
 
     public function editSingle(Program $program)
     {
-        return view('admin.content.edit', compact('program'));
+        $iconOptions = $this->programIconOptions();
+
+        return view('admin.content.edit', compact('program', 'iconOptions'));
     }
 
     public function updateSingle(Request $request, Program $program)

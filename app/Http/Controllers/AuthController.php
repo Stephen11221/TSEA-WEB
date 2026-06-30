@@ -49,14 +49,18 @@ class AuthController extends Controller
             $request->session()->regenerate();
 
             // Redirect based on role
-            $user = auth()->user();
+            $user = Auth::user();
             if ($user->role === 'admin') {
                 return redirect()->route('admin.dashboard');
             } elseif ($user->role === 'employer') {
                 return redirect()->route('employer.jobs.index');
             }
 
-            return redirect()->route('user.dashboard');
+            return redirect()
+                ->route('user.dashboard')
+                ->with('show_enrollment_popup', true)
+                ->with('enrollment_account_name', $user->name)
+                ->with('enrollment_popup_source', 'login');
         }
 
         return back()->withErrors([
@@ -118,7 +122,12 @@ class AuthController extends Controller
 
             Auth::login($user);
 
-            return redirect()->route('user.dashboard')->with('success', 'Registration successful! Welcome to TSEA.');
+            return redirect()
+                ->route('user.dashboard')
+                ->with('success', 'Registration successful! Welcome to TSEA.')
+                ->with('show_enrollment_popup', true)
+                ->with('enrollment_account_name', $user->name)
+                ->with('enrollment_popup_source', 'register');
         });
     }
 

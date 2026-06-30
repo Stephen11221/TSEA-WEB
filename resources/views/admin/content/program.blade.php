@@ -79,9 +79,19 @@
                            style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px;">
                 </div>
                 <div>
-                    <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px;">FA Icon Class</label>
-                    <input type="text" name="icon" value="{{ old('icon') }}" placeholder="fa-laptop-code" 
-                           style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px;">
+                    <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px;">Program Icon</label>
+                    <select name="icon" id="create-program-icon" style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: 6px;">
+                        <option value="">Select an icon</option>
+                        @foreach($iconOptions as $iconClass => $iconLabel)
+                            <option value="{{ $iconClass }}" @selected(old('icon') === $iconClass)>
+                                {{ $iconLabel }} ({{ $iconClass }})
+                            </option>
+                        @endforeach
+                    </select>
+                    <div id="create-program-icon-preview" style="margin-top: 8px; display: inline-flex; align-items: center; gap: 8px; color: var(--color-primary);">
+                        <i class="fas {{ old('icon', 'fa-graduation-cap') }}" style="font-size: 16px;"></i>
+                        <small style="color: var(--color-text-muted);">Icon preview</small>
+                    </div>
                 </div>
             </div>
 
@@ -198,4 +208,22 @@
     @endforeach
 </div>
 @endif
+
+<script>
+    (function () {
+        const iconSelect = document.getElementById('create-program-icon');
+        const previewContainer = document.getElementById('create-program-icon-preview');
+
+        if (!iconSelect || !previewContainer) {
+            return;
+        }
+
+        const previewIcon = previewContainer.querySelector('i');
+
+        iconSelect.addEventListener('change', function () {
+            const selected = this.value || 'fa-graduation-cap';
+            previewIcon.className = 'fas ' + selected;
+        });
+    })();
+</script>
 @endsection

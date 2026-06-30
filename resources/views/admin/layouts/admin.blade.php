@@ -522,6 +522,12 @@
                             <span>Applications</span>
                         </a>
                     </div>
+                    <div class="nav-item">
+                        <a href="{{ route('admin.enrollments.index') }}" class="nav-link @if(request()->routeIs('admin.enrollments.*')) active @endif">
+                            <i class="fas fa-user-graduate"></i>
+                            <span>Enrollments</span>
+                        </a>
+                    </div>
                 </div>
                 
                 <div class="nav-section">

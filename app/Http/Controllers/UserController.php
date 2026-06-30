@@ -7,6 +7,8 @@ use App\Models\Program; // Import the Program model
 use App\Models\JobPosting;
 use App\Models\Application;
 use App\Models\Notification;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
@@ -16,7 +18,12 @@ class UserController extends Controller
      */
     public function dashboard()
     {
-        $user = auth()->user();
+        /** @var User|null $user */
+        $user = Auth::user();
+        if (!$user) {
+            abort(403);
+        }
+
         $passports = $user->passport; // Assuming a user has one passport
         $applications = $user->applications()->with(['jobPosting', 'program'])->latest()->take(5)->get(); // Get recent applications
         $unreadNotificationsCount = $user->notifications()->unread()->count(); // Get unread notifications count
@@ -111,11 +118,19 @@ class UserController extends Controller
             'cv' => 'required|file|mimes:pdf,doc,docx|max:2048', // Max 2MB
         ]);
 
-        $user = auth()->user();
+        /** @var User|null $user */
+        $user = Auth::user();
+        if (!$user) {
+            abort(403);
+        }
+
+        $opportunity = JobPosting::whereKey($id)
+            ->where('status', 'open')
+            ->firstOrFail();
 
         // Check if user already applied
         $existing = Application::where('user_id', $user->id)
-            ->where('job_posting_id', $id)
+            ->where('job_posting_id', $opportunity->id)
             ->first();
 
         if ($existing) {
@@ -128,13 +143,13 @@ class UserController extends Controller
         // Create the application
         Application::create([
             'user_id' => $user->id,
-            'job_posting_id' => $id,
+            'job_posting_id' => $opportunity->id,
             'cover_letter' => $validated['cover_letter'],
             'resume_path' => $cvPath,
             'status' => 'pending',
         ]);
 
-        return redirect()->route('user.opportunities.show', $id)->with('success', 'Application submitted successfully!');
+        return redirect()->route('user.opportunities.show', $opportunity->id)->with('success', 'Application submitted successfully!');
     }
 
     /**
@@ -142,7 +157,14 @@ class UserController extends Controller
      */
     public function profile()
     {
-        return view('user.profile.show', ['user' => auth()->user()]);
+        /** @var User|null $user */
+        $user = Auth::user();
+
+        if (!$user) {
+            abort(403);
+        }
+
+        return view('user.profile.show', ['user' => $user]);
     }
 
     /**
@@ -150,7 +172,14 @@ class UserController extends Controller
      */
     public function editProfile()
     {
-        return view('profile.edit', ['user' => auth()->user()]);
+        /** @var User|null $user */
+        $user = Auth::user();
+
+        if (!$user) {
+            abort(403);
+        }
+
+        return view('profile.edit', ['user' => $user]);
     }
 
     /**
@@ -160,11 +189,16 @@ class UserController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . auth()->id(),
+            'email' => 'required|email|unique:users,email,' . Auth::id(),
             'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        $user = auth()->user();
+        /** @var User|null $user */
+        $user = Auth::user();
+        if (!$user) {
+            abort(403);
+        }
+
         $user->update($validated);
 
         if ($request->hasFile('avatar')) {
@@ -193,7 +227,13 @@ class UserController extends Controller
             'password' => 'required|string|min:8|confirmed',
         ]);
 
-        auth()->user()->update([
+        /** @var User|null $user */
+        $user = Auth::user();
+        if (!$user) {
+            abort(403);
+        }
+
+        $user->update([
             'password' => Hash::make($validated['password']),
         ]);
 
@@ -205,7 +245,12 @@ class UserController extends Controller
      */
     public function notificationsIndex()
     {
-        $user = auth()->user();
+        /** @var User|null $user */
+        $user = Auth::user();
+        if (!$user) {
+            abort(403);
+        }
+
         $notifications = $user->notifications()->latest()->paginate(10); // Paginate for large number of notifications
         return view('user.notifications.index', compact('notifications'));
     }
@@ -215,7 +260,13 @@ class UserController extends Controller
      */
     public function applicationsIndex()
     {
-        $applications = auth()->user()->applications()
+        /** @var User|null $user */
+        $user = Auth::user();
+        if (!$user) {
+            abort(403);
+        }
+
+        $applications = $user->applications()
             ->with(['job.employer', 'program'])
             ->latest()
             ->paginate(12);
@@ -232,7 +283,7 @@ class UserController extends Controller
     public function markNotificationAsRead(Notification $notification)
     {
         // Ensure the notification belongs to the authenticated user
-        if ($notification->user_id !== auth()->id()) {
+        if ($notification->user_id !== Auth::id()) {
             abort(403);
         }
         $notification->update(['read_at' => now()]);
@@ -244,18 +295,36 @@ class UserController extends Controller
      */
     public function showEnrollment($id)
     {
+        return redirect()->route('user.enrollment.step', ['id' => $id, 'step' => 1]);
+    }
+
+    /**
+     * Display a single enrollment step page.
+     */
+    public function showEnrollmentStep($id, $step)
+    {
         $program = Program::whereKey($id)
             ->whereIn('status', ['active', 'published'])
             ->firstOrFail();
 
-        $existingEnrollment = Application::where('user_id', auth()->id())
+        $existingEnrollment = Application::where('user_id', Auth::id())
             ->where('program_id', $program->id)
             ->latest()
             ->first();
 
-        $initialStep = session('enrollment_completed_program_id') === $program->id ? 4 : 1;
+        $currentStep = max(1, min(7, (int) $step));
 
-        return view('enrollment.track', compact('program', 'existingEnrollment', 'initialStep'));
+        if ($existingEnrollment && $currentStep < 5) {
+            $currentStep = 5;
+        }
+
+        if (!$existingEnrollment && $currentStep > 5) {
+            return redirect()
+                ->route('user.enrollment.step', ['id' => $program->id, 'step' => 5])
+                ->with('error', 'Please complete enrollment first.');
+        }
+
+        return view('enrollment.track', compact('program', 'existingEnrollment', 'currentStep'));
     }
 
     public function storeEnrollment(Request $request, $id)
@@ -267,29 +336,40 @@ class UserController extends Controller
         $validated = $request->validate([
             'cover_letter' => 'nullable|string|max:5000',
             'terms_accepted' => 'accepted',
+            'enrollment_file' => 'nullable|file|mimes:pdf,doc,docx,png,jpg,jpeg|max:5120',
         ]);
 
+        $resumePath = null;
+        if ($request->hasFile('enrollment_file')) {
+            $resumePath = $request->file('enrollment_file')->store('applications', 'public');
+        }
+
         $application = Application::firstOrCreate([
-            'user_id' => auth()->id(),
+            'user_id' => Auth::id(),
             'program_id' => $program->id,
         ], [
             'cover_letter' => $validated['cover_letter'] ?? null,
+            'resume_path' => $resumePath,
             'status' => 'pending',
             'submitted_at' => now(),
         ]);
 
         if (!$application->wasRecentlyCreated) {
+            if (!empty($validated['cover_letter']) && empty($application->cover_letter)) {
+                $application->update(['cover_letter' => $validated['cover_letter']]);
+            }
+
+            if (!empty($resumePath)) {
+                $application->update(['resume_path' => $resumePath]);
+            }
+
             return redirect()
-                ->route('user.enrollment.show', $program->id)
+                ->route('user.enrollment.step', ['id' => $program->id, 'step' => 7])
                 ->with('success', 'You are already enrolled in this program.');
         }
 
-        if (!empty($validated['cover_letter']) && empty($application->cover_letter)) {
-            $application->update(['cover_letter' => $validated['cover_letter']]);
-        }
-
         return redirect()
-            ->route('user.enrollment.show', $program->id)
+            ->route('user.enrollment.step', ['id' => $program->id, 'step' => 6])
             ->with('success', "Enrollment submitted for {$program->title}.")
             ->with('enrollment_completed_program_id', $program->id);
     }

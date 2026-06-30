@@ -53,6 +53,7 @@ Route::middleware(['auth', 'role:student,user'])->prefix('user')->name('user.')-
     Route::post('/notifications/{notification}/read', 'markNotificationAsRead')->name('notifications.markAsRead');
     Route::get('/profile', 'profile')->name('profile');
     Route::get('/enrollment/{id}', 'showEnrollment')->name('enrollment.show');
+    Route::get('/enrollment/{id}/step/{step}', 'showEnrollmentStep')->name('enrollment.step');
     Route::get('/profile/edit', 'editProfile')->name('profile.edit');
     Route::put('/profile', 'updateProfile')->name('profile.update');
     Route::get('/change-password', 'changePassword')->name('change-password');
@@ -105,6 +106,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->cont
     
     // Job Applications Management
     Route::get('/applications', [ApplicationController::class, 'index'])->name('applications.index'); // Global application tracker
+    Route::get('/enrollments', [ApplicationController::class, 'enrollments'])->name('enrollments.index');
     Route::get('/applications/{application}', [ApplicationController::class, 'show'])->name('applications.show');
     Route::get('/applications/{application}/resume/download', [ApplicationController::class, 'downloadResume'])->name('applications.downloadResume');
     Route::put('/applications/{application}/status', [ApplicationController::class, 'updateStatus'])->name('applications.updateStatus');

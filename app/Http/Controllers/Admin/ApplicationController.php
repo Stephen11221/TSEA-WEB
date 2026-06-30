@@ -4,14 +4,79 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Application;
+use App\Models\Program;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class ApplicationController extends Controller
 {
+    /**
+     * Show student enrollments grouped by program context.
+     */
+    public function enrollments(Request $request): View
+    {
+        $programs = Program::query()->orderBy('title')->get(['id', 'title']);
+
+        $selectedProgramId = $request->filled('program_id') ? (int) $request->input('program_id') : null;
+        $status = $request->input('status');
+        $search = trim((string) $request->input('search', ''));
+
+        $enrollmentsQuery = Application::query()
+            ->with([
+                'user:id,name,email,phone',
+                'program:id,title',
+            ])
+            ->whereNotNull('program_id');
+
+        if ($selectedProgramId) {
+            $enrollmentsQuery->where('program_id', $selectedProgramId);
+        }
+
+        if (!empty($status)) {
+            $enrollmentsQuery->where('status', $status);
+        }
+
+        if ($search !== '') {
+            $enrollmentsQuery->whereHas('user', function ($query) use ($search) {
+                $query->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        $enrollments = $enrollmentsQuery
+            ->orderByDesc('submitted_at')
+            ->latest('id')
+            ->paginate(20)
+            ->withQueryString();
+
+        $programCounts = Application::query()
+            ->selectRaw('program_id, COUNT(*) as total')
+            ->whereNotNull('program_id')
+            ->groupBy('program_id')
+            ->pluck('total', 'program_id');
+
+        $stats = [
+            'total_enrollments' => Application::whereNotNull('program_id')->count(),
+            'unique_students' => Application::whereNotNull('program_id')->distinct('user_id')->count('user_id'),
+            'programs_with_enrollments' => $programCounts->count(),
+        ];
+
+        return view('admin.enrollments.index', [
+            'enrollments' => $enrollments,
+            'programs' => $programs,
+            'programCounts' => $programCounts,
+            'selectedProgramId' => $selectedProgramId,
+            'status' => $status,
+            'search' => $search,
+            'stats' => $stats,
+        ]);
+    }
+
     /**
      * Show the list of all job applications.
      */
@@ -31,7 +96,7 @@ class ApplicationController extends Controller
      */
     public function show(Application $application): View
     {
-        $this->authorize('view', $application);
+        Gate::authorize('view', $application);
         
         return view('admin.applications.show', compact('application'));
     }
@@ -41,7 +106,7 @@ class ApplicationController extends Controller
      */
     public function updateStatus(Request $request, Application $application): RedirectResponse
     {
-        $this->authorize('update', $application);
+        Gate::authorize('update', $application);
         
         $validated = $request->validate([
             'status' => 'required|in:pending,approved,rejected'
@@ -50,7 +115,7 @@ class ApplicationController extends Controller
         $application->update([
             'status' => $validated['status'],
             'reviewed_at' => now(),
-            'reviewed_by' => auth()->id(),
+            'reviewed_by' => Auth::id(),
         ]);
 
         return back()->with('success', "Application status updated to {$validated['status']}.");
@@ -59,9 +124,9 @@ class ApplicationController extends Controller
     /**
      * Download the application's resume file.
      */
-    public function downloadResume(Application $application): StreamedResponse
+    public function downloadResume(Application $application): BinaryFileResponse
     {
-        $this->authorize('downloadResume', $application);
+        Gate::authorize('downloadResume', $application);
 
         // Validate resume path to prevent directory traversal
         if (!$application->resume_path || !$this->isValidResumePath($application->resume_path)) {
@@ -73,7 +138,7 @@ class ApplicationController extends Controller
             abort(404, 'Resume file not found');
         }
 
-        return Storage::disk('public')->download($application->resume_path);
+        return response()->download(storage_path('app/public/' . $application->resume_path));
     }
 
     /**
