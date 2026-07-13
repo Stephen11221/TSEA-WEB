@@ -192,6 +192,9 @@
             <a href="{{ route('user.opportunities.search') }}" class="btn btn-primary">
                 <i class="fas fa-search"></i> Find Opportunities
             </a>
+            <a href="{{ route('user.learning.feed') }}" class="btn btn-secondary">
+                <i class="fas fa-book-open"></i> Learning Feed
+            </a>
         </div>
     </div>
 

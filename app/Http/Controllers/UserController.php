@@ -7,6 +7,9 @@ use App\Models\Program; // Import the Program model
 use App\Models\JobPosting;
 use App\Models\Application;
 use App\Models\Notification;
+use App\Models\TrainerAssignment;
+use App\Models\TrainerNote;
+use App\Models\TrainerTimetable;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -272,6 +275,29 @@ class UserController extends Controller
             ->paginate(12);
 
         return view('user.applications.index', compact('applications'));
+    }
+
+    /**
+     * Display trainer timetable, assignments, and notes for students.
+     */
+    public function learningFeed()
+    {
+        $timetables = TrainerTimetable::with(['trainer:id,name', 'program:id,title'])
+            ->latest('scheduled_for')
+            ->take(20)
+            ->get();
+
+        $assignments = TrainerAssignment::with(['trainer:id,name', 'program:id,title'])
+            ->latest()
+            ->take(20)
+            ->get();
+
+        $notes = TrainerNote::with(['trainer:id,name', 'program:id,title'])
+            ->latest()
+            ->take(20)
+            ->get();
+
+        return view('user.learning-feed', compact('timetables', 'assignments', 'notes'));
     }
 
     /**

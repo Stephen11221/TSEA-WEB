@@ -54,6 +54,8 @@ class AuthController extends Controller
                 return redirect()->route('admin.dashboard');
             } elseif ($user->role === 'employer') {
                 return redirect()->route('employer.jobs.index');
+            } elseif ($user->role === 'instructor') {
+                return redirect()->route('trainer.dashboard');
             }
 
             return redirect()
@@ -118,6 +120,12 @@ class AuthController extends Controller
 
             if ($user->role === 'employer') {
                 return redirect()->route('login')->with('success', 'Registration submitted! Your account is pending admin approval.');
+            }
+
+            if ($user->role === 'instructor') {
+                Auth::login($user);
+
+                return redirect()->route('trainer.dashboard')->with('success', 'Trainer registration successful. Welcome to TSEA.');
             }
 
             Auth::login($user);

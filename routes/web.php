@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\ProgramController;
 use App\Http\Controllers\Admin\WorkforcePassportController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Trainer\TrainerPortalController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\UserManagementController; // Import the UserManagementController
@@ -50,6 +51,7 @@ Route::middleware(['auth', 'role:student,user'])->prefix('user')->name('user.')-
     Route::post('/opportunities/{id}/apply', 'applyOpportunity')->name('opportunities.apply');
     Route::get('/notifications', 'notificationsIndex')->name('notifications.index');
     Route::get('/applications', 'applicationsIndex')->name('applications.index');
+    Route::get('/learning-feed', 'learningFeed')->name('learning.feed');
     Route::post('/notifications/{notification}/read', 'markNotificationAsRead')->name('notifications.markAsRead');
     Route::get('/profile', 'profile')->name('profile');
     Route::get('/enrollment/{id}', 'showEnrollment')->name('enrollment.show');
@@ -59,6 +61,14 @@ Route::middleware(['auth', 'role:student,user'])->prefix('user')->name('user.')-
     Route::get('/change-password', 'changePassword')->name('change-password');
     Route::put('/change-password', 'updatePassword')->name('change-password.update');
     Route::post('/enrollment/{id}', 'storeEnrollment')->name('enrollment.store');
+});
+
+// Trainer Routes
+Route::middleware(['auth', 'role:instructor'])->prefix('trainer')->name('trainer.')->controller(TrainerPortalController::class)->group(function () {
+    Route::get('/dashboard', 'index')->name('dashboard');
+    Route::post('/timetable', 'storeTimetable')->name('timetable.store');
+    Route::post('/assignments', 'storeAssignment')->name('assignments.store');
+    Route::post('/notes', 'storeNote')->name('notes.store');
 });
 
 // Employer Routes
@@ -87,7 +97,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->cont
     Route::controller(UserManagementController::class)->group(function () {
         Route::get('/users', 'index')->name('users.index');
         Route::get('/users/create', 'create')->name('users.create'); // Added route
+        Route::get('/trainers/create', 'createTrainer')->name('trainers.create');
         Route::post('/users', 'store')->name('users.store'); // Added route
+        Route::post('/trainers', 'storeTrainer')->name('trainers.store');
         Route::get('/users/{user}', 'show')->name('users.show'); // Mapped to UserManagementController@show
         Route::get('/users/{user}/edit', 'edit')->name('users.edit');
         Route::put('/users/{user}', 'update')->name('users.update');
@@ -158,8 +170,6 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->cont
 
     Route::get('/pages/{page}/edit', 'editPage')->name('pages.edit');
     Route::put('/pages/{page}', 'updatePage')->name('pages.update');
-    Route::get('/change-password', 'changePassword')->name('change-password');
-    Route::put('/change-password', 'updatePassword')->name('change-password.update');
     Route::get('/content/homepage', [HomePageController::class, 'editHomepage'])->name('content.homepage');
     Route::post('/content/homepage', [HomePageController::class, 'updateHomepage'])->name('content.homepage.update');
     Route::post('/content/homepage/restore', [HomePageController::class, 'restoreHomepage'])->name('content.homepage.restore');

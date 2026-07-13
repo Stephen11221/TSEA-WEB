@@ -232,6 +232,9 @@ tr:hover{
     <a href="{{ route('admin.users.create') }}" class="btn-primary">
         + Add Student
     </a>
+    <a href="{{ route('admin.trainers.create') }}" class="btn-primary" style="background:#0f766e;">
+        + Add Trainer
+    </a>
 </div>
 
 @if(session('success'))

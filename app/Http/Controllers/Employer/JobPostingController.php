@@ -32,15 +32,23 @@ class JobPostingController extends Controller
     {
         $employerId = Auth::id();
 
+        $jobStats = JobPosting::where('employer_id', $employerId)
+            ->selectRaw('COUNT(*) as total_jobs')
+            ->selectRaw("SUM(CASE WHEN status = 'open' THEN 1 ELSE 0 END) as active_jobs")
+            ->first();
+
+        $applicationStats = Application::query()
+            ->join('job_postings', 'applications.job_posting_id', '=', 'job_postings.id')
+            ->where('job_postings.employer_id', $employerId)
+            ->selectRaw('COUNT(*) as total_applications')
+            ->selectRaw("SUM(CASE WHEN applications.status = 'pending' THEN 1 ELSE 0 END) as pending_applications")
+            ->first();
+
         $stats = [
-            'total_jobs' => JobPosting::where('employer_id', $employerId)->count(),
-            'active_jobs' => JobPosting::where('employer_id', $employerId)->where('status', 'open')->count(),
-            'total_applications' => Application::whereHas('job', function($query) use ($employerId) {
-                $query->where('employer_id', $employerId);
-            })->count(),
-            'pending_applications' => Application::whereHas('job', function($query) use ($employerId) {
-                $query->where('employer_id', $employerId);
-            })->where('status', 'pending')->count(),
+            'total_jobs' => (int) ($jobStats->total_jobs ?? 0),
+            'active_jobs' => (int) ($jobStats->active_jobs ?? 0),
+            'total_applications' => (int) ($applicationStats->total_applications ?? 0),
+            'pending_applications' => (int) ($applicationStats->pending_applications ?? 0),
         ];
 
         $recentApplications = Application::whereHas('job', function($query) use ($employerId) {

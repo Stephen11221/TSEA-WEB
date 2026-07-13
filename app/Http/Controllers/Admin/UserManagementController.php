@@ -23,6 +23,11 @@ class UserManagementController extends Controller
         return view('admin.users.create');
     }
 
+    public function createTrainer(): View
+    {
+        return view('admin.users.create-trainer');
+    }
+
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
@@ -39,6 +44,24 @@ class UserManagementController extends Controller
         User::create($validated);
 
         return redirect()->route('admin.users.index')->with('success', 'User created successfully.');
+    }
+
+    public function storeTrainer(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'unique:users'],
+            'password' => ['required', Password::defaults()],
+        ]);
+
+        $validated['password'] = Hash::make($validated['password']);
+        $validated['role'] = 'instructor';
+        $validated['status'] = 'active';
+        $validated['is_verified'] = true;
+
+        User::create($validated);
+
+        return redirect()->route('admin.users.index')->with('success', 'Trainer account created successfully.');
     }
 
     public function show(User $user): View
